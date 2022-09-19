@@ -7,7 +7,7 @@
 install_dir="/home/$(whoami)"
 
 # Name of the subdirectory (defaults to stable-diffusion-webui)
-clone_dir="stable-diffusion-webui"
+clone_dir="aitools_server"
 
 # Commandline arguments for webui.py, for example: export COMMANDLINE_ARGS=(--medvram --opt-split-attention)
 export COMMANDLINE_ARGS=""
