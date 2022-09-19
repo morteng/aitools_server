@@ -46,12 +46,12 @@ sudo pacman -S wget git python3
 bash <(wget -qO- https://raw.githubusercontent.com/SethRobinson/aitools_server/master/webui.sh)
 ```
 
-## Adding a few neccesary files.  Now you need to jump through a few hopes to get two important files.
+## Adding a few neccesary files
 
 4. Place `model.ckpt` in the base aitools_server directory (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
 5. Place `GFPGANv1.3.pth` in the base aitools_server directory, (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
 
-## RunningSeth's AI Tools front end
+## Running Seth's AI Tools front end
 
 Verify the server works by visiting it with a browser.  You should be able to generate and paint images via the default web gradio interface. Now you're ready to use the native client.
 
