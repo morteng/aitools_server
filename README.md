@@ -46,9 +46,16 @@ sudo pacman -S wget git python3
 bash <(wget -qO- https://raw.githubusercontent.com/SethRobinson/aitools_server/master/webui.sh)
 ```
 
+## Adding a few neccesary files.  Now you need to jump through a few hopes to get two important files.
+
+4. Place `model.ckpt` in the base aitools_server directory (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
+5. Place `GFPGANv1.3.pth` in the base aitools_server directory, (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
+
 ## RunningSeth's AI Tools front end
 
 Verify the server works by visiting it with a browser.  You should be able to generate and paint images via the default web gradio interface. Now you're ready to use the native client.
+
+**Note** The first time you use the server, it may appear that nothing is happening - look at the server window, it's probably downloading a bunch of stuff.  This only happens the first time!
 
 * [Download the Client (Windows, 22 MB)](https://www.rtsoft.com/files/SethsAIToolsWindows.zip)
     
@@ -68,7 +75,7 @@ Start one instance:
 
 Then from another shell start another specifying a different GPU and port:
 
-``CUDA_VISIBLE_DEVICES=1 python launch.py --listen --port 7861```
+```CUDA_VISIBLE_DEVICES=1 python launch.py --listen --port 7861```
 
 Then on the client, click Configure and edit in an add_server command for both servers.
 
