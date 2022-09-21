@@ -1,15 +1,14 @@
 # AI Tools Server
-<figure align = "center">
+
 <a href="https://www.youtube.com/watch?v=2TB4f8ojKYo"><img align="top" src="aitools/apple_youtube_thumbnail.png" width=300></a>
-<figcaption ><b>video of old version, but gives an idea of the workflow using multiple servers/gpus</b></figcaption>
-</figure>
+
+(warning, version in the video above is outdated, but does give an idea of the workflow)
 
 This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project that can be controlled with the native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client) client.
 
 <p float="left">
-<a href="aitools/ai_tools_birdy_to_bird.jpg"><img align="top" src="aitools/ai_tools_birdy_to_bird.jpg" width=300></a>
-<a href="aitools/aitools_client_fluffy_zoomedin.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedin.jpg" width=300></a>
-<a href="aitools/aitools_client_fluffy_zoomedout.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedout.jpg" width=300></a>
+<a href="aitools/ai_tools_birdy_to_bird.jpg"><img align="top" src="aitools/ai_tools_birdy_to_bird.jpg" width=400></a>
+<a href="aitools/aitools_client_fluffy_zoomedin.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedin.jpg" width=400></a>
 </p>
 
 Features of the AI Tools Client:
@@ -25,7 +24,7 @@ Features of the AI Tools Client:
  * Neat workflow that allows evolving images with loopback while live-selecting the best alteratives to shape the image in real-time
  
 
-(more screenshots/info coming later, the client is still changing often)
+<a href="aitools/aitools_client_fluffy_zoomedout.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedout.jpg" width=400></a>
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, it has completely replaced the original AI Tools backend server. 
 
