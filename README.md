@@ -1,19 +1,29 @@
 # AI Tools Server
+<figure align = "center">
 <a href="https://www.youtube.com/watch?v=2TB4f8ojKYo"><img align="top" src="aitools/apple_youtube_thumbnail.png" width=300></a>
+<figcaption ><b>video of old version, but gives an idea of the workflow using multiple servers/gpus</b></figcaption>
+</figure>
 
-This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project that can be controlled with the Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client).
+This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project that can be controlled with the native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client) client.
+
+<p float="left">
+<a href="aitools/ai_tools_birdy_to_bird.jpg"><img align="top" src="aitools/ai_tools_birdy_to_bird.jpg" width=300></a>
+<a href="aitools/aitools_client_fluffy_zoomedin.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedin.jpg" width=300></a>
+<a href="aitools/aitools_client_fluffy_zoomedout.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedout.jpg" width=300></a>
+</p>
 
 Features of the AI Tools Client:
 
  * It's not a web app, it's a native .exe
  * Photoshop/image editor integration with live update
- * Texture tile preview
+ * text to image, inpainting, image interrogation, face fixing, upscaling, tiled texture generation with preview
  * Drag and drop images in as well as paste images from windows clipboard
- * Pan/zoom freely with thousands of images on the screen
+ * Pan/zoom with thousands of images on the screen
  * Mask painting with controllable brush size
  * Can utilize multiple servers allowing seamless use of all remote GPUs for ultra fast generation
- * Client is open source, use the Unity game engine and C# to do stuff with AI art
+ * All open source, use the Unity game engine and C# to do stuff with AI art
  * Neat workflow that allows evolving images with loopback while live-selecting the best alteratives to shape the image in real-time
+ 
 
 (more screenshots/info coming later, the client is still changing often)
 
