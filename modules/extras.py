@@ -1,5 +1,10 @@
+import os
+
 import numpy as np
 from PIL import Image
+
+import torch
+import tqdm
 
 from modules import processing, shared, images, devices
 from modules.shared import opts
@@ -13,31 +18,27 @@ import piexif.helper
 cached_images = {}
 
 
-def run_extras(image, image_folder, gfpgan_visibility, codeformer_visibility, codeformer_weight, upscaling_resize, extras_upscaler_1, extras_upscaler_2, extras_upscaler_2_visibility):
+def run_extras(extras_mode, image, image_folder, gfpgan_visibility, codeformer_visibility, codeformer_weight, upscaling_resize, extras_upscaler_1, extras_upscaler_2, extras_upscaler_2_visibility):
     devices.torch_gc()
 
     imageArr = []
+    # Also keep track of original file names
+    imageNameArr = []
 
-    if image_folder != None:
-        if image != None:
-            print("Batch detected and single image detected, please only use one of the two. Aborting.")
-            return None
+    if extras_mode == 1:
         #convert file to pillow image
         for img in image_folder:
             image = Image.fromarray(np.array(Image.open(img)))
             imageArr.append(image)
-
-    elif image != None:
-        if image_folder != None:
-            print("Batch detected and single image detected, please only use one of the two. Aborting.")
-            return None
-        else:
-            imageArr.append(image)
+            imageNameArr.append(os.path.splitext(img.orig_name)[0])
+    else:
+        imageArr.append(image)
+        imageNameArr.append(None)
 
     outpath = opts.outdir_samples or opts.outdir_extras_samples
 
     outputs = []
-    for image in imageArr:
+    for image, image_name in zip(imageArr, imageNameArr):
         existing_pnginfo = image.info or {}
 
         image = image.convert("RGB")
@@ -90,7 +91,9 @@ def run_extras(image, image_folder, gfpgan_visibility, codeformer_visibility, co
         while len(cached_images) > 2:
             del cached_images[next(iter(cached_images.keys()))]
 
-        images.save_image(image, path=outpath, basename="", seed=None, prompt=None, extension=opts.samples_format, info=info, short_filename=True, no_prompt=True, grid=False, pnginfo_section_name="extras", existing_info=existing_pnginfo)
+        images.save_image(image, path=outpath, basename="", seed=None, prompt=None, extension=opts.samples_format, info=info, short_filename=True,
+                          no_prompt=True, grid=False, pnginfo_section_name="extras", existing_info=existing_pnginfo,
+                          forced_filename=image_name if opts.use_original_name_batch else None)
 
         outputs.append(image)
 
@@ -98,7 +101,11 @@ def run_extras(image, image_folder, gfpgan_visibility, codeformer_visibility, co
 
 
 def run_pnginfo(image):
+    if image is None:
+        return '', '', ''
+
     items = image.info
+    geninfo = ''
 
     if "exif" in image.info:
         exif = piexif.load(image.info["exif"])
@@ -108,13 +115,14 @@ def run_pnginfo(image):
         except ValueError:
             exif_comment = exif_comment.decode('utf8', errors="ignore")
 
-
         items['exif comment'] = exif_comment
+        geninfo = exif_comment
 
         for field in ['jfif', 'jfif_version', 'jfif_unit', 'jfif_density', 'dpi', 'exif',
                       'loop', 'background', 'timestamp', 'duration']:
             items.pop(field, None)
 
+    geninfo = items.get('parameters', geninfo)
 
     info = ''
     for key, text in items.items():
@@ -129,4 +137,58 @@ def run_pnginfo(image):
         message = "Nothing found in the image."
         info = f"<div><p>{message}<p></div>"
 
-    return '', '', info
+    return '', geninfo, info
+
+
+def run_modelmerger(modelname_0, modelname_1, interp_method, interp_amount):
+    # Linear interpolation (https://en.wikipedia.org/wiki/Linear_interpolation)
+    def weighted_sum(theta0, theta1, alpha):
+        return ((1 - alpha) * theta0) + (alpha * theta1)
+
+    # Smoothstep (https://en.wikipedia.org/wiki/Smoothstep)
+    def sigmoid(theta0, theta1, alpha):
+        alpha = alpha * alpha * (3 - (2 * alpha))
+        return theta0 + ((theta1 - theta0) * alpha)
+
+    if os.path.exists(modelname_0):
+        model0_filename = modelname_0
+        modelname_0 = os.path.splitext(os.path.basename(modelname_0))[0]
+    else:
+        model0_filename = 'models/' + modelname_0 + '.ckpt'
+
+    if os.path.exists(modelname_1):
+        model1_filename = modelname_1
+        modelname_1 = os.path.splitext(os.path.basename(modelname_1))[0]
+    else:
+        model1_filename = 'models/' + modelname_1 + '.ckpt'
+
+    print(f"Loading {model0_filename}...")
+    model_0 = torch.load(model0_filename, map_location='cpu')
+
+    print(f"Loading {model1_filename}...")
+    model_1 = torch.load(model1_filename, map_location='cpu')
+    
+    theta_0 = model_0['state_dict']
+    theta_1 = model_1['state_dict']
+
+    theta_funcs = {
+        "Weighted Sum": weighted_sum,
+        "Sigmoid": sigmoid,
+    }
+    theta_func = theta_funcs[interp_method]
+
+    print(f"Merging...")
+    for key in tqdm.tqdm(theta_0.keys()):
+        if 'model' in key and key in theta_1:
+            theta_0[key] = theta_func(theta_0[key], theta_1[key], interp_amount)
+    
+    for key in theta_1.keys():
+        if 'model' in key and key not in theta_0:
+            theta_0[key] = theta_1[key]
+
+    output_modelname = 'models/' + modelname_0 + '-' + modelname_1 + '-' + interp_method.replace(" ", "_") + '-' + str(interp_amount) + '-merged.ckpt'
+    print(f"Saving to {output_modelname}...")
+    torch.save(model_0, output_modelname)
+
+    print(f"Checkpoint saved.")
+    return "Checkpoint saved to " + output_modelname
