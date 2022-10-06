@@ -28,8 +28,9 @@ Features of the AI Tools Client:
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, it has completely replaced the original AI Tools backend server. 
 
-# Latest changes (Sept 29th, 2022)
-* Versioned to 0.21 (requires client V0.45+)
+# Latest changes (Oct 6th, 2022)
+* Versioned to 0.25 (requires client V0.46+)
+* Now using new API code for client communication
 * Synced with AUTOMATIC1111's latest changes
 
 
