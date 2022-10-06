@@ -4,7 +4,7 @@
 
 (warning, version in the video above is outdated, but does give an idea of the workflow)
 
-This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project that can be controlled with the native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client) client.
+This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project that can be controlled with the native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client) client via an API.  There is a Jupyter notebook script in the aitools subdir illustrating the API.
 
 <p float="left">
 <a href="aitools/ai_tools_birdy_to_bird.jpg"><img align="top" src="aitools/ai_tools_birdy_to_bird.jpg" width=400></a>
@@ -41,8 +41,7 @@ Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-di
 2. Install [git](https://git-scm.com/download/win).
 3. Download the aitools_server repository, for example by running `git clone https://github.com/SethRobinson/aitools_server.git`.
 4. Place `model.ckpt` in the `models` directory (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
-5. _*(Optional)*_ Place `GFPGANv1.4.pth` in the base directory, alongside `webui.py` (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
-6. Run `webui-user.bat` from Windows Explorer as normal, non-administrator, user.
+5. Run `webui-user.bat` from Windows Explorer as normal, non-administrator, user.
 
 ### Automatic Installation on Linux
 1. Install the dependencies:
@@ -54,15 +53,18 @@ sudo dnf install wget git python3
 # Arch-based:
 sudo pacman -S wget git python3
 ```
-2. To install in `/home/$(whoami)/stable-diffusion-webui/`, run:
+2. To install in `/home/$(whoami)/aitools_server/`, run:
 ```bash
 bash <(wget -qO- https://raw.githubusercontent.com/SethRobinson/aitools_server/master/webui.sh)
 ```
 
-## Adding a few neccesary files (needed for Win/linux installs)
+## Adding a few necessary files (needed for Win/linux installs)
 
 4. Place `model.ckpt` in the base aitools_server directory (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
-5. Place `GFPGANv1.3.pth` in the base aitools_server directory, (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
+5. Run the server from shell with:
+```bash
+python launch.py --listen --port 7860 --api
+```
 
 ## Google Colab
 
@@ -88,11 +90,11 @@ You can run multiple instances of the server from the same install.
 
 Start one instance:
 
-```CUDA_VISIBLE_DEVICES=0 python launch.py --listen --port 7860```
+```CUDA_VISIBLE_DEVICES=0 python launch.py --listen --port 7860 --api```
 
 Then from another shell start another specifying a different GPU and port:
 
-```CUDA_VISIBLE_DEVICES=1 python launch.py --listen --port 7861```
+```CUDA_VISIBLE_DEVICES=1 python launch.py --listen --port 7861 --api```
 
 Then on the client, click Configure and edit in an add_server command for both servers.
 
@@ -108,6 +110,7 @@ Then on the client, click Configure and edit in an add_server command for both s
 - LDSR - https://github.com/Hafiidz/latent-diffusion
 - Ideas for optimizations - https://github.com/basujindal/stable-diffusion
 - Doggettx - Cross Attention layer optimization - https://github.com/Doggettx/stable-diffusion, original idea for prompt editing.
+- Rinon Gal - Textual Inversion - https://github.com/rinongal/textual_inversion (we're not using his code, but we are using his ideas).
 - Idea for SD upscale - https://github.com/jquesnelle/txt2imghd
 - Noise generation for outpainting mk2 - https://github.com/parlance-zz/g-diffuser-bot
 - CLIP interrogator idea and borrowing some code - https://github.com/pharmapsychotic/clip-interrogator

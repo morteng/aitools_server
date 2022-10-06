@@ -1,17 +1,7 @@
 {
     "name":"stable-diffusion-webui server modified to run Seth's AI Tools",
-    "version":0.21,
-    "required_client_version":0.45,
-    "comment": "fn_index offsets change when gradio stuff is modified. I found them by looking at payloads in chrome.  Is there a better way?!",
-    "fn_index":[
-        {
-        "text2image": 10,
-        "img2img": 26,
-        "interrogate": 27,
-        "upscale": 35
-        }
-    ],
-    
+    "version":0.25,
+    "required_client_version":0.46,
     "gpu":[
            {
             "id":0,"abilities":"text2image,inpaint,gfpgan","vram_gb":0
