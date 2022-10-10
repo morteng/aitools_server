@@ -2,11 +2,14 @@ import os
 import threading
 import time
 import importlib
-from modules import devices
-from modules.paths import script_path
 import signal
 import threading
 
+from fastapi.middleware.gzip import GZipMiddleware
+
+from modules.paths import script_path
+
+from modules import devices, sd_samplers
 import modules.codeformer_model as codeformer
 import modules.extras
 import modules.face_restoration
@@ -57,6 +60,7 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
         shared.state.current_latent = None
         shared.state.current_image = None
         shared.state.current_image_sampling_step = 0
+        shared.state.skipped = False
         shared.state.interrupted = False
         shared.state.textinfo = None
 
@@ -77,6 +81,9 @@ modules.scripts.load_scripts(os.path.join(script_path, "scripts"))
 shared.sd_model = modules.sd_models.load_model()
 shared.opts.onchange("sd_model_checkpoint", wrap_queued_call(lambda: modules.sd_models.reload_model_weights(shared.sd_model)))
 
+loaded_hypernetwork = modules.hypernetwork.load_hypernetwork(shared.opts.sd_hypernetwork)
+shared.opts.onchange("sd_hypernetwork", wrap_queued_call(lambda: modules.hypernetwork.load_hypernetwork(shared.opts.sd_hypernetwork)))
+
 def webui():
     # make the program just exit at ctrl+c without waiting for anything
     def sigint_handler(sig, frame):
@@ -89,28 +96,22 @@ def webui():
 
         demo = modules.ui.create_ui(wrap_gradio_gpu_call=wrap_gradio_gpu_call)
         
-        from modules.api import Api
-        api = Api(txt2img=modules.txt2img.txt2img,
-                  img2img=modules.img2img.img2img,
-                  run_extras=modules.extras.run_extras,
-                  run_pnginfo=modules.extras.run_pnginfo)
-    
+        app,local_url,share_url = demo.launch(
+            share=cmd_opts.share,
+            server_name="0.0.0.0" if cmd_opts.listen else None,
+            server_port=cmd_opts.port,
+            debug=cmd_opts.gradio_debug,
+            auth=[tuple(cred.split(':')) for cred in cmd_opts.gradio_auth.strip('"').split(',')] if cmd_opts.gradio_auth else None,
+            inbrowser=cmd_opts.autolaunch,
+            prevent_thread_lock=True
+        )
+        
+        app.add_middleware(GZipMiddleware,minimum_size=1000)
+
         if cmd_opts.api:
-            api.launch(demo, server_name="0.0.0.0" if cmd_opts.listen else "localhost",
-                        port=cmd_opts.port if cmd_opts.port else 7860)
-
-        else:
-
-            demo.launch(
-                share=cmd_opts.share,
-                server_name="0.0.0.0" if cmd_opts.listen else None,
-                server_port=cmd_opts.port,
-                debug=cmd_opts.gradio_debug,
-                auth=[tuple(cred.split(':')) for cred in cmd_opts.gradio_auth.strip('"').split(',')] if cmd_opts.gradio_auth else None,
-                inbrowser=cmd_opts.autolaunch,
-                prevent_thread_lock=True
-            )
-
+            from modules.api import Api
+            Api(app) #adds api support to existing gradio fastapi object so both can be used at once
+    
         while 1:
             time.sleep(0.5)
             if getattr(demo, 'do_restart', False):
@@ -118,6 +119,8 @@ def webui():
                 demo.close()
                 time.sleep(0.5)
                 break
+
+        sd_samplers.set_samplers()
 
         print('Reloading Custom Scripts')
         modules.scripts.reload_scripts(os.path.join(script_path, "scripts"))

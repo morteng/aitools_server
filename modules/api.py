@@ -11,6 +11,10 @@ import gradio as grr
 from modules.sd_samplers import samplers, samplers_for_img2img
 from PIL import Image
 from . import shared
+
+import modules.txt2img
+import modules.img2img
+import modules.extras
 from modules.upscaler import Upscaler, UpscalerData
 
 
@@ -74,7 +78,6 @@ class TextToImageResponse(BaseModel):
 #Mostly because I think I have to decode the images before sending the data to the img2img function so we can't do the
 #'send the giant list in' trick anyway, and this should give us all the options needed.
 
-
 class ImageToImage(BaseModel):
     prompt: str = Field(..., title="Prompt Text", description="The guiding prompt text")
     negative_prompt: str = Field(default="", title="Negative Prompt Text")
@@ -117,8 +120,6 @@ class Interrogator(BaseModel):
   
 class InterrogatorResponse(BaseModel):
     description: str = Field(default=None, title="Generated description of the image we sent")
-  
-app = FastAPI()
 
 def GetSamplerIndexFromName(samplerName):
 
@@ -149,19 +150,15 @@ def GetUpscalerIndexFromName(upscalerName):
     return 0 #default to None
 
 class Api:
-    def __init__(self, txt2img, img2img, run_extras, run_pnginfo):
-        self.txt2img = txt2img
-        self.img2img = img2img
-        self.run_extras = run_extras
-        self.run_pnginfo = run_pnginfo
-
+    def __init__(self, app):
+        self.app = app
         self.router = APIRouter()
-        app.add_api_route("/v1/txt2img", self.txt2imgendpoint, response_model=TextToImageResponse, methods=["POST"])
-        app.add_api_route("/v1/img2img", self.img2imgendpoint, response_model=ImageToImageResponse, methods=["POST"])
-        app.add_api_route("/v1/extras", self.extrasendpoint, methods=["POST"])
+        self.app.add_api_route("/v1/txt2img", self.txt2imgendpoint, response_model=TextToImageResponse, methods=["POST"])
+        self.app.add_api_route("/v1/img2img", self.img2imgendpoint, response_model=ImageToImageResponse, methods=["POST"])
+        self.app.add_api_route("/v1/extras", self.extrasendpoint, methods=["POST"])
         #app.add_api_route("/v1/pnginfo", self.pnginfoendpoint, methods=["POST"])
-        app.add_api_route("/v1/interrogator", self.interrogatorendpoint, methods=["POST"])
-
+        self.app.add_api_route("/v1/interrogator", self.interrogatorendpoint, methods=["POST"])
+        self.app.add_api_route("/aitools/get_info.json", self.get_info)
   
     def txt2imgendpoint(self, txt2imgreq: TextToImage = Body(embed=True)):
 
@@ -183,7 +180,7 @@ class Api:
           
         print(f"Using sampler {samplers[ d['sampler_index']].name}")
         
-        images, params, html = self.txt2img(*[v for v in d.values()], 0, False, None, '', False, 1, '', 4, '', True)
+        images, params, html = modules.txt2img.txt2img(*[v for v in d.values()], 0, False, None, '', False, 1, '', 4, '', True)
         b64images = []
         for i in images:
             buffer = io.BytesIO()
@@ -237,7 +234,7 @@ class Api:
         if d['inpainting_fill'] == "latent nothing":
             inpainting_fill_mode = 3
 
-        images, params, html = self.img2img(1, d['prompt'], d['negative_prompt'], "", "", None, {}, inpaintPic, inpaintMask, 1,
+        images, params, html = modules.img2img.img2img(1, d['prompt'], d['negative_prompt'], "", "", None, {}, inpaintPic, inpaintMask, 1,
         d['steps'], d['sampler_index'], d['mask_blur'], inpainting_fill_mode,  d['restore_faces'], d['tiling'], 1, 1, d['cfg_scale'], d['denoising_strength'],
         d['seed'], -1, 0, -1, -1, False, d['height'], d['width'], 0, True, 0, False, "", "", 
         0, False, None, '', False, 1, '', 4, '', True)
@@ -276,7 +273,7 @@ class Api:
 
         #print(f"Using upscaler {shared.sd_upscalers[upscaler1_index].name} and {shared.sd_upscalers[upscaler2_index].name}")
 
-        images, params, html = self.run_extras(0, pic, "", d['gfpgan_visibility'],d['codeformer_visibility'],d['codeformer_weight'], 
+        images, params, html = modules.extras.run_extras(0, pic, "", d['gfpgan_visibility'],d['codeformer_visibility'],d['codeformer_weight'], 
         d['upscaling_resize'], upscaler1_index, upscaler2_index,d['extras_upscaler_2_visibility'])
       
         b64images = []
@@ -309,17 +306,16 @@ class Api:
       
         return InterrogatorResponse(description=prompt)
 
-    @app.get("/aitools/get_info.json")
-    def get_info():
+  
+    def get_info(self):
         #this is just for Seth's server, it allows my client app to understand when it or the server's version is outdated
         #todo:  create json file dynamically, add list of samplers/upscaler names available?
         return FileResponse("aitools/get_info.json")
         
+
+    #inject ourselves on top of the gradio fastapi stuff so both are active        
     def launch(self, demo, server_name, port):
       
-        global app
-        app = grr.mount_gradio_app(app, demo, path="/")
-        app.include_router(self.router)
-       
-        uvicorn.run(app, host=server_name, port=port)
-        return app
+        self.app = grr.mount_gradio_app(self.app, demo, path="/")
+        self.app.include_router(self.router)
+        return self.app

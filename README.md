@@ -4,14 +4,21 @@
 
 (warning, version in the video above is outdated, but does give an idea of the workflow)
 
-This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project that can be controlled with the native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client) client via an API.  There is a Jupyter notebook script in the aitools subdir illustrating the API.
+# Features of this server
+This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project with api support added.
 
+To use my native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client), you need this running somewhere.
+
+* The api can be used simultaneously with the normal web interface, you don't lose anything
+* The api supports txt to image, image to image/inpainting, interrogation
+* Just want the api and don't care about my front end? Here's a [notebook](https://github.com/SethRobinson/aitools_server/blob/master/aitools/api_tester_jupyter_notebook.ipynb) showing how to use it directly
+
+
+# Features of the AI Tools Client:
 <p float="left">
 <a href="aitools/ai_tools_birdy_to_bird.jpg"><img align="top" src="aitools/ai_tools_birdy_to_bird.jpg" width=400></a>
 <a href="aitools/aitools_client_fluffy_zoomedin.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedin.jpg" width=400></a>
 </p>
-
-Features of the AI Tools Client:
 
  * It's not a web app, it's a native .exe
  * Photoshop/image editor integration with live update
@@ -28,14 +35,13 @@ Features of the AI Tools Client:
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, it has completely replaced the original AI Tools backend server. 
 
-# Latest changes (Oct 6th, 2022)
-* Versioned to 0.25 (requires client V0.46+)
-* Now using new API code for client communication
-* Synced with AUTOMATIC1111's latest changes
-
+# Latest server changes (Oct 10th, 2022)
+* Versioned to 0.26 
+* Synced with AUTOMATIC1111's latest (note: I had to run 'conda uninstall pytorch' after updating for some reason or I got errors)
 
 ## Installation and Running (modified from [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki) docs)
 Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) are met and follow the instructions available for both [NVidia](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-NVidia-GPUs) (recommended) and [AMD](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) GPUs.
+
 
 ### Automatic Installation on Windows
 1. Install [Python 3.10.6](https://www.python.org/downloads/windows/), checking "Add Python to PATH"
@@ -75,9 +81,9 @@ Don't have a strong enough GPU or want to give it a quick test run without hassl
 
 Verify the server works by visiting it with a browser.  You should be able to generate and paint images via the default web gradio interface. Now you're ready to use the native client.
 
-**Note** The first time you use the server, it may appear that nothing is happening - look at the server window, it's probably downloading a bunch of stuff.  This only happens the first time!
+**Note** The first time you use the server, it may appear that nothing is happening - look at the server window/shell, it's probably downloading a bunch of stuff.  This only happens the first time!
 
-* [Download the Client (Windows, 22 MB)](https://www.rtsoft.com/files/SethsAIToolsWindows.zip)
+* [Download the Client (Windows, 22 MB)](https://www.rtsoft.com/files/SethsAIToolsWindows.zip) (Or get the [Unity source](https://github.com/SethRobinson/aitools_client))
     
 * Unzip somewhere and run aitools_client.exe
 
@@ -116,4 +122,5 @@ Then on the client, click Configure and edit in an add_server command for both s
 - Noise generation for outpainting mk2 - https://github.com/parlance-zz/g-diffuser-bot
 - CLIP interrogator idea and borrowing some code - https://github.com/pharmapsychotic/clip-interrogator
 - Initial Gradio script - posted on 4chan by an Anonymous user. Thank you Anonymous user.
+- DeepDanbooru - interrogator for anime diffusors https://github.com/KichangKim/DeepDanbooru
 - (You)
