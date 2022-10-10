@@ -96,6 +96,10 @@ def webui():
 
         demo = modules.ui.create_ui(wrap_gradio_gpu_call=wrap_gradio_gpu_call)
         
+        if cmd_opts.api and cmd_opts.gradio_debug:
+            print ("Disabling gradio_debug parm, otherwise API won't get loaded")
+            cmd_opts.gradio_debug = False
+
         app,local_url,share_url = demo.launch(
             share=cmd_opts.share,
             server_name="0.0.0.0" if cmd_opts.listen else None,
@@ -110,6 +114,7 @@ def webui():
 
         if cmd_opts.api:
             from modules.api import Api
+            print("Mounting API...")
             Api(app) #adds api support to existing gradio fastapi object so both can be used at once
     
         while 1:
