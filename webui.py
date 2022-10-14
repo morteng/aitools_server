@@ -29,13 +29,9 @@ from modules import devices
 from modules import modelloader
 from modules.paths import script_path
 from modules.shared import cmd_opts
+import modules.hypernetworks.hypernetwork
 
-modelloader.cleanup_models()
-modules.sd_models.setup_model()
-codeformer.setup_model(cmd_opts.codeformer_models_path)
-gfpgan.setup_model(cmd_opts.gfpgan_models_path)
-shared.face_restorers.append(modules.face_restoration.FaceRestoration())
-modelloader.load_upscalers()
+
 queue_lock = threading.Lock()
 
 
@@ -76,15 +72,24 @@ def wrap_gradio_gpu_call(func, extra_outputs=None):
 
     return modules.ui.wrap_gradio_call(f, extra_outputs=extra_outputs)
 
-modules.scripts.load_scripts(os.path.join(script_path, "scripts"))
+def initialize():
+    modelloader.cleanup_models()
+    modules.sd_models.setup_model()
+    codeformer.setup_model(cmd_opts.codeformer_models_path)
+    gfpgan.setup_model(cmd_opts.gfpgan_models_path)
+    shared.face_restorers.append(modules.face_restoration.FaceRestoration())
+    modelloader.load_upscalers()
 
-shared.sd_model = modules.sd_models.load_model()
-shared.opts.onchange("sd_model_checkpoint", wrap_queued_call(lambda: modules.sd_models.reload_model_weights(shared.sd_model)))
+    modules.scripts.load_scripts(os.path.join(script_path, "scripts"))
 
-loaded_hypernetwork = modules.hypernetwork.load_hypernetwork(shared.opts.sd_hypernetwork)
-shared.opts.onchange("sd_hypernetwork", wrap_queued_call(lambda: modules.hypernetwork.load_hypernetwork(shared.opts.sd_hypernetwork)))
+    shared.sd_model = modules.sd_models.load_model()
+    shared.opts.onchange("sd_model_checkpoint", wrap_queued_call(lambda: modules.sd_models.reload_model_weights(shared.sd_model)))
+    shared.opts.onchange("sd_hypernetwork", wrap_queued_call(lambda: modules.hypernetworks.hypernetwork.load_hypernetwork(shared.opts.sd_hypernetwork)))
+    shared.opts.onchange("sd_hypernetwork_strength", modules.hypernetworks.hypernetwork.apply_strength)
 
 def webui():
+    initialize()
+    
     # make the program just exit at ctrl+c without waiting for anything
     def sigint_handler(sig, frame):
         print(f'Interrupted with signal {sig} in {frame}')
@@ -92,15 +97,15 @@ def webui():
 
     signal.signal(signal.SIGINT, sigint_handler)
 
+    if cmd_opts.api and cmd_opts.gradio_debug:
+            print ("Disabling gradio_debug parm, otherwise API won't get loaded")
+            cmd_opts.gradio_debug = False
+    
     while 1:
 
         demo = modules.ui.create_ui(wrap_gradio_gpu_call=wrap_gradio_gpu_call)
         
-        if cmd_opts.api and cmd_opts.gradio_debug:
-            print ("Disabling gradio_debug parm, otherwise API won't get loaded")
-            cmd_opts.gradio_debug = False
-
-        app,local_url,share_url = demo.launch(
+        app, local_url, share_url = demo.launch(
             share=cmd_opts.share,
             server_name="0.0.0.0" if cmd_opts.listen else None,
             server_port=cmd_opts.port,
@@ -110,7 +115,7 @@ def webui():
             prevent_thread_lock=True
         )
         
-        app.add_middleware(GZipMiddleware,minimum_size=1000)
+        app.add_middleware(GZipMiddleware, minimum_size=1000)
 
         if cmd_opts.api:
             from modules.api import Api
@@ -131,8 +136,9 @@ def webui():
         modules.scripts.reload_scripts(os.path.join(script_path, "scripts"))
         print('Reloading modules: modules.ui')
         importlib.reload(modules.ui)
+        print('Refreshing Model List')
+        modules.sd_models.list_models()
         print('Restarting Gradio')
-
 
 
 if __name__ == "__main__":
