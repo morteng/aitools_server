@@ -68,7 +68,7 @@ sudo pacman -S wget git python3
 bash <(wget -qO- https://raw.githubusercontent.com/SethRobinson/aitools_server/master/webui.sh)
 ```
 
-## Adding a few necessary files (needed for Win/linux installs)
+## Adding a necessary file (needed for Win/linux installs)
 
 4. Place `model.ckpt` in the base aitools_server directory (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
 5. Run the server from shell with:
@@ -79,6 +79,14 @@ python launch.py --listen --port 7860 --api
 ## Google Colab
 
 Don't have a strong enough GPU or want to give it a quick test run without hassle?  No problem, use this [Colab notebook](https://colab.research.google.com/drive/14FT8N_MfKNBmbPi4-xlt2YvrRzK1UN8K).  (Works fine on the free tier)
+
+## How to update an existing install of the server to the latest version
+
+Go to its directory (probably aitools_server) in a shell or command prompt and type:
+
+```bash
+git pull
+```
 
 ## Running Seth's AI Tools front end
 
