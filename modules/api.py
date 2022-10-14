@@ -11,12 +11,13 @@ import gradio as grr
 from modules.sd_samplers import samplers, samplers_for_img2img
 from PIL import Image
 from . import shared
-
 import modules.txt2img
 import modules.img2img
 import modules.extras
 from modules.upscaler import Upscaler, UpscalerData
-
+from modules.shared import opts, cmd_opts, state
+import modules.safety as safety
+import numpy as np
 
 #needed for Python versions older than 3.9:
 from typing import List
@@ -47,9 +48,11 @@ class TextToImage(BaseModel):
     
     #these are not part of the real call, but needed to make life easier for the API user
     sampler_name: str = Field(default = "", title="Sampler name", description="Can be used instead of sampler_index") 
-
+    safety_filter: str = Field(default="default", title="Safety filter") #needs to be removed from array later dude to the method used to call the func
+  
 class TextToImageResponse(BaseModel):
     images: List[str] = Field(default=None, title="Image", description="The generated image in base64 format.")
+    nsfw_detected: bool = Field(default=None, title="NSFW detected")
     all_prompts: List[str] = Field(default=None, title="All Prompts", description="The prompt text.")
     negative_prompt: str = Field(default=None, title="Negative Prompt Text")
     seed: int = Field(default=None, title="Seed")
@@ -60,7 +63,7 @@ class TextToImageResponse(BaseModel):
     width: int = Field(default=None, title="Width")
     height: int = Field(default=None, title="Height")
     sampler_index: int = Field(default=None, title="Sampler Index")
-    sampler: str = Field(default=None, title="Sampler")
+    sampler: str = Field(default=None, title="Sampler") 
     cfg_scale: float = Field(default=None, title="Config Scale")
     steps: int = Field(default=None, title="Steps")
     batch_size: int = Field(default=None, title="Batch Size")
@@ -95,7 +98,8 @@ class ImageToImage(BaseModel):
     denoising_strength: float = Field(default=0.64, title="Denoising Strength")
     sampler_name: str = Field(default = "", title="Sampler name", description="Can be used instead of sampler_index") 
     inpainting_fill: str = Field(default="original", title="Inpainting Fill Mode",  description="Options: fill, original, latent noise, latent nothing")
-
+    safety_filter: str = Field(default="default", title="Safety filter") #if true, will override server settings and return ../aitools/safety_filter.png if nsfw detected
+ 
 class Extras(BaseModel):
     image: str = Field(default=None, title="Image to upscale")
     upscaler1_name: str = Field(default = "None", title="Upscaler1 name", description="None, ESRGAN_4x, etc")
@@ -114,7 +118,8 @@ class ExtrasResponse(BaseModel):
 class ImageToImageResponse(BaseModel):
     images: List[str] = Field(default=None, title="Image", description="The generated image in base64 format.")
     html: str = Field(default=None, title="HTML")
-
+    nsfw_detected: bool = Field(default=None, title="NSFW detected")
+ 
 class Interrogator(BaseModel):
     image: str = Field(default=None, title="Image png")
   
@@ -171,24 +176,50 @@ class Api:
             if newSamplerIndex != -1:
                  d['sampler_index'] = newSamplerIndex
         
+        #if true, we do our own NSFW check and send back a custom image if nsfw.  If false, we do whatever the server default is
+        forceNSFFilter = int(d['safety_filter'].lower() == "true")
+
         #remove things that aren't in original function call.  Should probably just rewrite all of this
         #to manually send in the vars separately as this is getting confusing
         del d['sampler_name']
+        del d['safety_filter']
 
         #for idx, x in enumerate(samplers):
         #    print(f"{x.name}, ")
-          
+     
         print(f"Using sampler {samplers[ d['sampler_index']].name}")
         
         images, params, html = modules.txt2img.txt2img(*[v for v in d.values()], 0, False, None, '', False, 1, '', 4, '', True)
+     
         b64images = []
+        nsfw_detected = False
+
         for i in images:
+    
             buffer = io.BytesIO()
-            i.save(buffer, format="png")
+    
+            if forceNSFFilter:
+                #this is slightly wasteful as we're converting the image BACK to numpy, but I don't want to return a blank image if nswf is detected, I want
+                #to send back a custom image and tag in the json, plus not change safety.py
+                x_checked_image, has_nsfw_concept = safety.check_safety(np.array(i))
+                if has_nsfw_concept[0]:
+                    pngFileToSendBack = "aitools/safety_filter.png"
+                    print(f"Uh oh, NSFW content detected, sending back {pngFileToSendBack} instead")
+                    Image.open(pngFileToSendBack).save(buffer, format="png");
+                    nsfw_detected = True
+                else:
+                    i.save(buffer, format="png")
+                
+            else:
+                i.save(buffer, format="png")
+   
+
             b64images.append(base64.b64encode(buffer.getvalue()))
+    
+
         resp_params = json.loads(params)
       
-        return TextToImageResponse(images=b64images, **resp_params, html=html)
+        return TextToImageResponse(images=b64images, nsfw_detected = nsfw_detected, **resp_params, html=html)
 
     def img2imgendpoint(self, img2imgreq: ImageToImage = Body(embed=True)):
         d =img2imgreq.dict() #make things more readable
@@ -234,6 +265,9 @@ class Api:
         if d['inpainting_fill'] == "latent nothing":
             inpainting_fill_mode = 3
 
+        #if true, we do our own NSFW check and send back a custom image if nsfw.  If false, we do whatever the server default is
+        forceNSFFilter = int(d['safety_filter'].lower() == "true")
+
         images, params, html = modules.img2img.img2img(1, d['prompt'], d['negative_prompt'], "", "", None, {}, inpaintPic, inpaintMask, 1,
         d['steps'], d['sampler_index'], d['mask_blur'], inpainting_fill_mode,  d['restore_faces'], d['tiling'], 1, 1, d['cfg_scale'], d['denoising_strength'],
         d['seed'], -1, 0, -1, -1, False, d['height'], d['width'], 0, True, 0, False, "", "", 
@@ -242,14 +276,31 @@ class Api:
         #print(F"Ok, got {len(images)} images")
 
         b64images = []
+        nsfw_detected = False
+      
         for i in images:
             buffer = io.BytesIO()
-            i.save(buffer, format="png")
+    
+            if forceNSFFilter:
+                #this is slightly wasteful as we're converting the image BACK to numpy, but I don't want to return a blank image if nswf is detected, I want
+                #to send back a custom image and tag in the json, plus not change safety.py
+                x_checked_image, has_nsfw_concept = safety.check_safety(np.array(i))
+                if has_nsfw_concept[0]:
+                    pngFileToSendBack = "aitools/safety_filter.png"
+                    print(f"Uh oh, NSFW content detected, sending back {pngFileToSendBack} instead")
+                    Image.open(pngFileToSendBack).save(buffer, format="png");
+                    nsfw_detected = True
+                else:
+                    i.save(buffer, format="png")
+                
+            else:
+                i.save(buffer, format="png")
+   
             b64images.append(base64.b64encode(buffer.getvalue()))
         
         resp_params = json.loads(params)
     
-        return ImageToImageResponse(images=b64images, **resp_params, html=html)
+        return ImageToImageResponse(images=b64images, nsfw_dectected=nsfw_detected, **resp_params, html=html)
 
     def extrasendpoint(self, extrasreq: Extras = Body(embed=True)):
         d =extrasreq.dict() #make things more readable
