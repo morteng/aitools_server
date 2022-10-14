@@ -40,6 +40,7 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
 * Synced with AUTOMATIC1111's latest (note: I had to run 'conda uninstall pytorch' after updating for some reason or I got errors)
 * Fixed issue with API not being loaded if --gradio-debug parm is used
 * Updated the [google colab](https://colab.research.google.com/drive/14FT8N_MfKNBmbPi4-xlt2YvrRzK1UN8K), it works again
+* Added some error checking to the notebook api tester
 
 ## Installation and Running (modified from [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki) docs)
 Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) are met and follow the instructions available for both [NVidia](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-NVidia-GPUs) (recommended) and [AMD](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) GPUs.

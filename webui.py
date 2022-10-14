@@ -114,8 +114,8 @@ def webui():
 
         if cmd_opts.api:
             from modules.api import Api
-            print("Mounting API...")
             Api(app) #adds api support to existing gradio fastapi object so both can be used at once
+            print("API mounted.")
     
         while 1:
             time.sleep(0.5)
