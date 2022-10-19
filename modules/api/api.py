@@ -11,13 +11,15 @@ import json
 import io
 import base64
 
+#needed for Python versions older than 3.9:
+from typing import List
+
 sampler_to_index = lambda name: next(filter(lambda row: name.lower() == row[1].name.lower(), enumerate(all_samplers)), None)
 
 class TextToImageResponse(BaseModel):
-    images: list[str] = Field(default=None, title="Image", description="The generated image in base64 format.")
+    images: List[str] = Field(default=None, title="Image", description="The generated image in base64 format.")
     parameters: Json
     info: Json
-
 
 class Api:
     def __init__(self, app, queue_lock):
