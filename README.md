@@ -9,9 +9,10 @@ This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://g
 
 To use my native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client), you need this running somewhere.
 
-* The api can be used simultaneously with the normal web interface, you don't lose anything
+* Our api (txt2img, img2img, interrogate) can be used simultaneously with the normal web interface, AND the new half-done sdapi feature
 * The api supports txt to image, image to image/inpainting, interrogation
 * Just want the api and don't care about my front end? Here's a [notebook](https://github.com/SethRobinson/aitools_server/blob/master/aitools/api_tester_jupyter_notebook.ipynb) showing how to use it directly
+* Also added a notebook showing how to use the new unfinished API [here](https://github.com/SethRobinson/aitools_server/blob/master/aitools/new_api_tester_jupyter_notebook.ipynb)
 
 
 # Features of the AI Tools Client:
@@ -35,12 +36,10 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, it has completely replaced the original AI Tools backend server. 
 
-# Latest server changes (Oct 10th, 2022)
-* Versioned to 0.26 
-* Synced with AUTOMATIC1111's latest (note: I had to run 'conda uninstall pytorch' after updating for some reason or I got errors)
-* Fixed issue with API not being loaded if --gradio-debug parm is used
-* Updated the [google colab](https://colab.research.google.com/drive/14FT8N_MfKNBmbPi4-xlt2YvrRzK1UN8K), it works again
-* Added some error checking to the notebook api tester
+# Latest server changes (Oct 20th, 2022)
+* Synced with AUTOMATIC1111's latest
+* Note, AUTOMATIC111 now has an official half done API support, yay.  However, because it doesn't support img2img or interrogation yet, we still need our "legacy api".  I've setup all three (legeacy api, new api, and webui) to work at the same time to make this switchover process go smoother so there is no rush.  When the official API is mature, we'll probably move to it.
+
 
 ## Installation and Running (modified from [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki) docs)
 Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) are met and follow the instructions available for both [NVidia](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-NVidia-GPUs) (recommended) and [AMD](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) GPUs.
