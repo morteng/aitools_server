@@ -122,7 +122,13 @@ def webui():
     launch_api = cmd_opts.api
     initialize()
 
+    if cmd_opts.api and cmd_opts.gradio_debug:
+            print ("Disabling gradio_debug parm, otherwise API won't get loaded")
+            cmd_opts.gradio_debug = False
+  
+
     while 1:
+
         demo = modules.ui.create_ui(wrap_gradio_gpu_call=wrap_gradio_gpu_call)
 
         app, local_url, share_url = demo.launch(
@@ -140,6 +146,11 @@ def webui():
         if (launch_api):
             create_api(app)
             print("API initialized")
+
+            from modules.legacy_api import LegacyApi
+            LegacyApi(app) #also mount the older but fully featured API system (reachable by v1/ instead of sdapi/v1),
+            #later, when the new API system can do img2img etc, we can get rid of this and switch over
+            print("Legacy API mounted (has more features, but both can be used at the same time)")
 
         wait_on_server(demo)
 

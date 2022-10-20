@@ -154,7 +154,7 @@ def GetUpscalerIndexFromName(upscalerName):
     
     return 0 #default to None
 
-class Api:
+class LegacyApi:
     def __init__(self, app):
         self.app = app
         self.router = APIRouter()
@@ -187,7 +187,7 @@ class Api:
         #for idx, x in enumerate(samplers):
         #    print(f"{x.name}, ")
      
-        print(f"Using sampler {samplers[ d['sampler_index']].name}")
+        #print(f"Using sampler {samplers[ d['sampler_index']].name}")
         
         images, params, html = modules.txt2img.txt2img(*[v for v in d.values()], 0, False, None, '', False, 1, '', 4, '', True)
      
@@ -315,8 +315,8 @@ class Api:
             print(msg)
             return {msg}
 
-         #for idx, x in enumerate(shared.sd_upscalers):
-         #   print(f" Upscaler: {idx}: {x.name}")
+        #for idx, x in enumerate(shared.sd_upscalers):
+        #   print(f" Upscaler: {idx}: {x.name}")
       
       
         upscaler1_index = GetUpscalerIndexFromName(d['upscaler1_name'])
@@ -324,8 +324,11 @@ class Api:
 
         #print(f"Using upscaler {shared.sd_upscalers[upscaler1_index].name} and {shared.sd_upscalers[upscaler2_index].name}")
 
-        images, params, html = modules.extras.run_extras(0, pic, "", d['gfpgan_visibility'],d['codeformer_visibility'],d['codeformer_weight'], 
-        d['upscaling_resize'], upscaler1_index, upscaler2_index,d['extras_upscaler_2_visibility'])
+#def run_extras(extras_mode, resize_mode, image, image_folder, input_dir, output_dir, show_extras_results, gfpgan_visibility, codeformer_visibility, codeformer_weight, upscaling_resize, upscaling_resize_w, upscaling_resize_h, upscaling_crop, extras_upscaler_1, extras_upscaler_2, extras_upscaler_2_visibility):
+  
+
+        images, params, html = modules.extras.run_extras(0, 0, pic, "", "", "", False, d['gfpgan_visibility'],d['codeformer_visibility'],d['codeformer_weight'], 
+        d['upscaling_resize'], 1.0, 1.0, 1.0, upscaler1_index, upscaler2_index,d['extras_upscaler_2_visibility'])
       
         b64images = []
         for i in images:
