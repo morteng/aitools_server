@@ -35,7 +35,7 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, it has completely replaced the original AI Tools backend server. 
 
-# Latest server changes (Oct 21th, 2022)
+# Latest server changes (Oct 23th, 2022)
 * Note, AUTOMATIC1111 now has an official half done API support, yay.  However, because it doesn't support img2img or interrogation yet, we still need our "legacy api".  I've setup all three (legeacy api, new api, and webui) to work at the same time to make this switchover process go smoother so there is no rush.  When the official API is mature, we'll probably move to it.
 * Supports the new 1.5 checkpoints (inpainting one too)
 
