@@ -5,12 +5,12 @@
 (warning, version in the video above is outdated, but does give an idea of the workflow)
 
 # Features of this server
-This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project with api support added.
+This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project with some additional tweaks for my AI Tools to work.
 
 To use my native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client), you need this running somewhere.
 
-* Our api (txt2img, img2img, interrogate) can be used simultaneously with the normal web interface, AND the new half-done sdapi feature
-* Just want the api and don't care about my front end? Here's a [notebook](https://github.com/SethRobinson/aitools_server/blob/master/aitools/api_tester_jupyter_notebook.ipynb) showing how to use it directly
+* My legacy api (txt2img, img2img, interrogate) can be used simultaneously with the normal web interface, AND the new partially done official api feature
+* Just want the legacy api and don't care about my front end? Here's a [notebook](https://github.com/SethRobinson/aitools_server/blob/master/aitools/api_tester_jupyter_notebook.ipynb) showing how to use it directly
 * Also added a notebook showing how to use the new unfinished API [here](https://github.com/SethRobinson/aitools_server/blob/master/aitools/new_api_tester_jupyter_notebook.ipynb)
 
 
@@ -23,6 +23,7 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
  * It's not a web app, it's a native .exe
  * Photoshop/image editor integration with live update
  * text to image, inpainting, image interrogation, face fixing, upscaling, tiled texture generation with preview
+ * Adjustable inpaint size tool, useful for outpainting/mixing too
  * Drag and drop images in as well as paste images from windows clipboard
  * Pan/zoom with thousands of images on the screen
  * Mask painting with controllable brush size
@@ -35,9 +36,8 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, it has completely replaced the original AI Tools backend server. 
 
-# Latest server changes (Oct 23th, 2022)
-* Note, AUTOMATIC1111 now has an official half done API support, yay.  However, because it doesn't support img2img or interrogation yet, we still need our "legacy api".  I've setup all three (legeacy api, new api, and webui) to work at the same time to make this switchover process go smoother so there is no rush.  When the official API is mature, we'll probably move to it.
-* Supports the new 1.5 checkpoints (inpainting one too)
+# Latest server changes (Oct 28th, 2022)
+* Note, AUTOMATIC1111 now has partially done API support, yay.  I plan to switch-over to it when it's mature enough.
 
 
 ## Installation and Running (modified from [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki) docs)
