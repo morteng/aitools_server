@@ -30,3 +30,5 @@ notification.mp3
 .vscode
 /extensions
 
+merge_with_automatic1111.sh
+aitools/.ipynb_checkpoints/api_tester_jupyter_notebook-checkpoint.ipynb

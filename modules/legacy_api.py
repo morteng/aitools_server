@@ -22,6 +22,9 @@ import numpy as np
 #needed for Python versions older than 3.9:
 from typing import List
 
+#from the aitools dir
+from aitools.image_segmentation import DoImageSegmentationAndReturnMask
+
 class TextToImage(BaseModel):
     prompt: str = Field(..., title="Prompt Text", description="The text to generate an image from.")
     negative_prompt: str = Field(default="", title="Negative Prompt Text")
@@ -48,7 +51,8 @@ class TextToImage(BaseModel):
     
     #these are not part of the real call, but needed to make life easier for the API user
     sampler_name: str = Field(default = "", title="Sampler name", description="Can be used instead of sampler_index") 
-    safety_filter: str = Field(default="default", title="Safety filter") #needs to be removed from array later dude to the method used to call the func
+    safety_filter: str = Field(default="default", title="Safety filter") #needs to be removed from array later due to the method used to call the func
+    alpha_mask_subject: bool = Field(default=False, title="Remove background via alpha channel") #needs to be removed from array later due to the method used to call the func
   
 class TextToImageResponse(BaseModel):
     images: List[str] = Field(default=None, title="Image", description="The generated image in base64 format.")
@@ -99,7 +103,8 @@ class ImageToImage(BaseModel):
     sampler_name: str = Field(default = "", title="Sampler name", description="Can be used instead of sampler_index") 
     inpainting_fill: str = Field(default="original", title="Inpainting Fill Mode",  description="Options: fill, original, latent noise, latent nothing")
     safety_filter: str = Field(default="default", title="Safety filter") #if true, will override server settings and return ../aitools/safety_filter.png if nsfw detected
- 
+    alpha_mask_subject: bool = Field(default=False, title="Remove background via alpha channel")
+
 class Extras(BaseModel):
     image: str = Field(default=None, title="Image to upscale")
     upscaler1_name: str = Field(default = "None", title="Upscaler1 name", description="None, ESRGAN_4x, etc")
@@ -109,7 +114,8 @@ class Extras(BaseModel):
     codeformer_visibility: float = Field(default=0, title="Codeformer visibility", description="0 to 1, 0 means don't fix faces at all with Codeformer")
     codeformer_weight: float = Field(default=0, title="Codeformer weight", description="CodeFormer weight (0 = maximum effect, 1 = minimum effect")
     extras_upscaler_2_visibility: float = Field(default=0.5, title="extras_upscaler_2_visibility", description="0 means none, 1 means full")
- 
+    alpha_mask_subject: bool = Field(default=False, title="Remove background via alpha channel") 
+  
 
 class ExtrasResponse(BaseModel):
     images: List[str] = Field(default=None, title="Image", description="The generated image in base64 format.")
@@ -154,6 +160,17 @@ def GetUpscalerIndexFromName(upscalerName):
     
     return 0 #default to None
 
+def ApplyMaskToImage(inputImage: Image, maskImage: Image):
+
+    #to actually remove the background from the image, we do this:
+    #blackImage = Image.new("RGB", inputImage.size, (0, 0, 0))
+    #inputImage = Image.composite(inputImage, blackImage, maskImage)
+   
+    #add the alpha to the image
+    inputImage.putalpha(maskImage)
+    
+    return inputImage
+
 class LegacyApi:
     def __init__(self, app):
         self.app = app
@@ -170,7 +187,7 @@ class LegacyApi:
         d = txt2imgreq.dict()
 
         samplerName = d['sampler_name']
-        
+     
         if len(samplerName) > 0:
             newSamplerIndex = GetSamplerIndexFromName(samplerName)
             if newSamplerIndex != -1:
@@ -178,11 +195,13 @@ class LegacyApi:
         
         #if true, we do our own NSFW check and send back a custom image if nsfw.  If false, we do whatever the server default is
         forceNSFFilter = int(d['safety_filter'].lower() == "true")
-
+        alpha_mask_subject = d['alpha_mask_subject']
+    
         #remove things that aren't in original function call.  Should probably just rewrite all of this
         #to manually send in the vars separately as this is getting confusing
         del d['sampler_name']
         del d['safety_filter']
+        del d['alpha_mask_subject']
 
         #for idx, x in enumerate(samplers):
         #    print(f"{x.name}, ")
@@ -207,15 +226,16 @@ class LegacyApi:
                     print(f"Uh oh, NSFW content detected, sending back {pngFileToSendBack} instead")
                     Image.open(pngFileToSendBack).save(buffer, format="png");
                     nsfw_detected = True
-                else:
-                    i.save(buffer, format="png")
-                
-            else:
-                i.save(buffer, format="png")
    
+            if not nsfw_detected:
 
+                if alpha_mask_subject:
+                    i = ApplyMaskToImage(i, DoImageSegmentationAndReturnMask(i))
+            
+            i.save(buffer, format="png")
+        
             b64images.append(base64.b64encode(buffer.getvalue()))
-    
+  
 
         resp_params = json.loads(params)
       
@@ -267,7 +287,8 @@ class LegacyApi:
 
         #if true, we do our own NSFW check and send back a custom image if nsfw.  If false, we do whatever the server default is
         forceNSFFilter = int(d['safety_filter'].lower() == "true")
-
+        alpha_mask_subject = d['alpha_mask_subject']
+    
         images, params, html = modules.img2img.img2img(1, d['prompt'], d['negative_prompt'], "", "", None, {}, inpaintPic, inpaintMask, 1,
         d['steps'], d['sampler_index'], d['mask_blur'], inpainting_fill_mode,  d['restore_faces'], d['tiling'], 1, 1, d['cfg_scale'], d['denoising_strength'],
         d['seed'], -1, 0, -1, -1, False, d['height'], d['width'], 0, True, 0, False, "", "", 
@@ -290,10 +311,12 @@ class LegacyApi:
                     print(f"Uh oh, NSFW content detected, sending back {pngFileToSendBack} instead")
                     Image.open(pngFileToSendBack).save(buffer, format="png");
                     nsfw_detected = True
-                else:
-                    i.save(buffer, format="png")
-                
-            else:
+              
+            if not nsfw_detected:
+
+                if alpha_mask_subject:
+                    i = ApplyMaskToImage(i, DoImageSegmentationAndReturnMask(i))
+           
                 i.save(buffer, format="png")
    
             b64images.append(base64.b64encode(buffer.getvalue()))
@@ -329,14 +352,20 @@ class LegacyApi:
 
         images, params, html = modules.extras.run_extras(0, 0, pic, "", "", "", False, d['gfpgan_visibility'],d['codeformer_visibility'],d['codeformer_weight'], 
         d['upscaling_resize'], 1.0, 1.0, 1.0, upscaler1_index, upscaler2_index,d['extras_upscaler_2_visibility'])
+
+        alpha_mask_subject = d['alpha_mask_subject']
       
         b64images = []
         for i in images:
+          
+            if alpha_mask_subject:
+                i = ApplyMaskToImage(i, DoImageSegmentationAndReturnMask(i))
+       
             buffer = io.BytesIO()
             i.save(buffer, format="png")
             b64images.append(base64.b64encode(buffer.getvalue()))
         
-      
+        
         return ExtrasResponse(images=b64images, html=html)
 
     def pnginfoendpoint(self):
@@ -367,9 +396,3 @@ class LegacyApi:
         return FileResponse("aitools/get_info.json")
         
 
-    #inject ourselves on top of the gradio fastapi stuff so both are active        
-    def launch(self, demo, server_name, port):
-      
-        self.app = grr.mount_gradio_app(self.app, demo, path="/")
-        self.app.include_router(self.router)
-        return self.app

@@ -158,7 +158,7 @@ def webui():
             from modules.legacy_api import LegacyApi
             LegacyApi(app) #also mount the older but fully featured API system (reachable by v1/ instead of sdapi/v1),
             #later, when the new API system can do img2img etc, we can get rid of this and switch over
-            print("Legacy API mounted (has more features, but both can be used at the same time)")
+            print("Seth's legacy API mounted")
 
         wait_on_server(demo)
 

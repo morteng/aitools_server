@@ -9,7 +9,7 @@ This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://g
 
 To use my native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client), you need this running somewhere.
 
-* My legacy api (txt2img, img2img, interrogate) can be used simultaneously with the normal web interface, AND the new partially done official api feature
+* My legacy api (txt2img, img2img, interrogate, background removal, on demand nsfw checks) can be used simultaneously with the normal web interface, AND the new partially done official api feature
 * Just want the legacy api and don't care about my front end? Here's a [notebook](https://github.com/SethRobinson/aitools_server/blob/master/aitools/api_tester_jupyter_notebook.ipynb) showing how to use it directly
 * Also added a notebook showing how to use the new unfinished API [here](https://github.com/SethRobinson/aitools_server/blob/master/aitools/new_api_tester_jupyter_notebook.ipynb)
 
@@ -22,7 +22,7 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
 
  * It's not a web app, it's a native .exe
  * Photoshop/image editor integration with live update
- * text to image, inpainting, image interrogation, face fixing, upscaling, tiled texture generation with preview
+ * text to image, inpainting, image interrogation, face fixing, upscaling, tiled texture generation with preview, nsfw options, alpha mask subject isolation (background removal)
  * Adjustable inpaint size tool, useful for outpainting/mixing too
  * Drag and drop images in as well as paste images from windows clipboard
  * Pan/zoom with thousands of images on the screen
@@ -34,10 +34,11 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
 
 <a href="aitools/aitools_client_fluffy_zoomedout.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedout.jpg" width=400></a>
 
-**Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, it has completely replaced the original AI Tools backend server. 
+**Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, it has completely replaced the original AI Tools backend server.
 
 # Latest server changes (Oct 28th, 2022)
-* Note, AUTOMATIC1111 now has partially done API support, yay.  I plan to switch-over to it when it's mature enough.
+* Added background removal (creates an alpha mask around the subject with ai)
+* Versioned to 0.27 (requires client 0.49 to use latest features)
 
 
 ## Installation and Running (modified from [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki) docs)
@@ -68,7 +69,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/SethRobinson/aitools_server/m
 
 ## Adding a necessary file (needed for Win/linux installs)
 
-4. Place `model.ckpt` in the base aitools_server directory (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
+4. Place `model.ckpt` (or better, use sd-v1.5-inpainting.ckpt) in the base aitools_server directory (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
 5. Run the server from shell with:
 ```bash
 python launch.py --listen --port 7860 --api
@@ -90,7 +91,7 @@ git pull
 
 Verify the server works by visiting it with a browser.  You should be able to generate and paint images via the default web gradio interface. Now you're ready to use the native client.
 
-**Note** The first time you use the server, it may appear that nothing is happening - look at the server window/shell, it's probably downloading a bunch of stuff.  This only happens the first time!
+**Note** The first time you use the server, it may appear that nothing is happening - look at the server window/shell, it's probably downloading a bunch of stuff for each new feature you use.  This only happens the first time!
 
 * [Download the Client (Windows, 22 MB)](https://www.rtsoft.com/files/SethsAIToolsWindows.zip) (Or get the [Unity source](https://github.com/SethRobinson/aitools_client))
     
@@ -114,8 +115,11 @@ Then from another shell start another specifying a different GPU and port:
 
 Then on the client, click Configure and edit in an add_server command for both servers.
 
-## Credits
+## Credits for things specific to this fork
 - Seth's AI Tools created by Seth A. Robinson (seth@rtsoft.com) twitter: @rtsoft - [Codedojo](https://www.codedojo.com), Seth's blog
+- [Highly Accurate Dichotomous Image Segmentation](https://github.com/xuebinqin/DIS) (Xuebin Qin and Hang Dai and Xiaobin Hu and Deng-Ping Fan and Ling Shao and Luc Van Gool)
+
+## Credits for Automatic1111's WebUI
 - The original [stable-diffusion-webui project](https://github.com/AUTOMATIC1111/stable-diffusion-webui) the server portion is forked from
 - Stable Diffusion - https://github.com/CompVis/stable-diffusion, https://github.com/CompVis/taming-transformers
 - k-diffusion - https://github.com/crowsonkb/k-diffusion.git
