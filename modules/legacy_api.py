@@ -351,7 +351,7 @@ class LegacyApi:
   
 
         images, params, html = modules.extras.run_extras(0, 0, pic, "", "", "", False, d['gfpgan_visibility'],d['codeformer_visibility'],d['codeformer_weight'], 
-        d['upscaling_resize'], 1.0, 1.0, 1.0, upscaler1_index, upscaler2_index,d['extras_upscaler_2_visibility'])
+        d['upscaling_resize'], 1.0, 1.0, 1.0, upscaler1_index, upscaler2_index,d['extras_upscaler_2_visibility'], True)
 
         alpha_mask_subject = d['alpha_mask_subject']
       

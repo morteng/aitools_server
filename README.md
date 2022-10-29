@@ -39,6 +39,7 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
 # Latest server changes (Oct 28th, 2022)
 * Added background removal (creates an alpha mask around the subject with ai)
 * Versioned to 0.27 (requires client 0.49 to use latest features)
+* Note: Now requires Python to be 3.9+, I got tired of fixing auto1111 changes to allow earlier, they may fix it later though.  To upgrade python in a conda env, do "conda uninstall python" and then "conda install python=3.9"
 
 
 ## Installation and Running (modified from [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki) docs)
@@ -54,6 +55,8 @@ Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-di
 
 ### Automatic Installation on Linux
 1. Install the dependencies:
+Note:  Requires Python 3.9+!
+
 ```bash
 # Debian-based:
 sudo apt install wget git python3 python3-venv

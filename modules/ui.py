@@ -1119,6 +1119,9 @@ def create_ui(wrap_gradio_gpu_call):
                     codeformer_visibility = gr.Slider(minimum=0.0, maximum=1.0, step=0.001, label="CodeFormer visibility", value=0, interactive=modules.codeformer_model.have_codeformer)
                     codeformer_weight = gr.Slider(minimum=0.0, maximum=1.0, step=0.001, label="CodeFormer weight (0 = maximum effect, 1 = minimum effect)", value=0, interactive=modules.codeformer_model.have_codeformer)
 
+                with gr.Group():
+                    upscale_before_face_fix = gr.Checkbox(label='Upscale Before Restoring Faces', value=False)
+
                 submit = gr.Button('Generate', elem_id="extras_generate", variant='primary')
 
             with gr.Column(variant='panel'):
@@ -1152,6 +1155,7 @@ def create_ui(wrap_gradio_gpu_call):
                 extras_upscaler_1,
                 extras_upscaler_2,
                 extras_upscaler_2_visibility,
+                upscale_before_face_fix,
             ],
             outputs=[
                 result_images,
@@ -1172,6 +1176,11 @@ def create_ui(wrap_gradio_gpu_call):
             _js="extract_image_from_gallery_inpaint",
             inputs=[result_images],
             outputs=[init_img_with_mask],
+        )
+
+        extras_image.change(
+            fn=modules.extras.clear_cache,
+            inputs=[], outputs=[]
         )
 
     with gr.Blocks(analytics_enabled=False) as pnginfo_interface:
@@ -1238,7 +1247,7 @@ def create_ui(wrap_gradio_gpu_call):
                     new_hypernetwork_name = gr.Textbox(label="Name")
                     new_hypernetwork_sizes = gr.CheckboxGroup(label="Modules", value=["768", "320", "640", "1280"], choices=["768", "320", "640", "1280"])
                     new_hypernetwork_layer_structure = gr.Textbox("1, 2, 1", label="Enter hypernetwork layer structure", placeholder="1st and last digit must be 1. ex:'1, 2, 1'")
-                    new_hypernetwork_activation_func = gr.Dropdown(value="relu", label="Select activation function of hypernetwork", choices=modules.hypernetworks.ui.keys)
+                    new_hypernetwork_activation_func = gr.Dropdown(value="linear", label="Select activation function of hypernetwork", choices=modules.hypernetworks.ui.keys)
                     new_hypernetwork_initialization_option = gr.Dropdown(value = "Normal", label="Select Layer weights initialization. relu-like - Kaiming, sigmoid-like - Xavier is recommended", choices=["Normal", "KaimingUniform", "KaimingNormal", "XavierUniform", "XavierNormal"])
                     new_hypernetwork_add_layer_norm = gr.Checkbox(label="Add layer normalization")
                     new_hypernetwork_use_dropout = gr.Checkbox(label="Use dropout")
