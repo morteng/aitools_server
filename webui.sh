@@ -102,16 +102,15 @@ then
     exit 1
 fi
 
-printf "\n%s\n" "${delimiter}"
-printf "Clone or update aitools_server"
-printf "\n%s\n" "${delimiter}"
 cd "${install_dir}"/ || { printf "\e[1m\e[31mERROR: Can't cd to %s/, aborting...\e[0m" "${install_dir}"; exit 1; }
 if [[ -d "${clone_dir}" ]]
 then
     cd "${clone_dir}"/ || { printf "\e[1m\e[31mERROR: Can't cd to %s/%s/, aborting...\e[0m" "${install_dir}" "${clone_dir}"; exit 1; }
-    "${GIT}" pull
 else
-    "${GIT}" clone https://github.com/SethRobinson/aitools_server.git "${clone_dir}"
+    printf "\n%s\n" "${delimiter}"
+    printf "Clone aitools_server"
+    printf "\n%s\n" "${delimiter}"
+    "${GIT}" clone https://github.com/SethRobinson/aitools_server.git  "${clone_dir}"
     cd "${clone_dir}"/ || { printf "\e[1m\e[31mERROR: Can't cd to %s/%s/, aborting...\e[0m" "${install_dir}" "${clone_dir}"; exit 1; }
 fi
 
