@@ -9,7 +9,7 @@ import io
 import base64
 import gradio as grr
 from modules.sd_samplers import samplers, samplers_for_img2img
-from PIL import Image
+from PIL import Image, ImageOps
 from . import shared
 import modules.txt2img
 import modules.img2img
@@ -103,7 +103,9 @@ class ImageToImage(BaseModel):
     sampler_name: str = Field(default = "", title="Sampler name", description="Can be used instead of sampler_index") 
     inpainting_fill: str = Field(default="original", title="Inpainting Fill Mode",  description="Options: fill, original, latent noise, latent nothing")
     safety_filter: str = Field(default="default", title="Safety filter") #if true, will override server settings and return ../aitools/safety_filter.png if nsfw detected
-    alpha_mask_subject: bool = Field(default=False, title="Remove background via alpha channel")
+    alpha_mask_subject: bool = Field(default=False, title="After processing, remove background via alpha channel")
+    generate_subject_mask: bool = Field(default=False, title="Before processing, create mask of subject and use it")
+    generate_subject_mask_reverse: bool = Field(default=False, title="Before processing, create reverse mask of subject and use it")
 
 class Extras(BaseModel):
     image: str = Field(default=None, title="Image to upscale")
@@ -168,8 +170,8 @@ def ApplyMaskToImage(inputImage: Image, maskImage: Image):
    
     #add the alpha to the image
     inputImage.putalpha(maskImage)
-    
     return inputImage
+
 
 class LegacyApi:
     def __init__(self, app):
@@ -243,7 +245,10 @@ class LegacyApi:
 
     def img2imgendpoint(self, img2imgreq: ImageToImage = Body(embed=True)):
         d =img2imgreq.dict() #make things more readable
-        
+
+        #inpaintPic = Image.open("aitools/pic.png")
+        #inpaintMask = Image.open("aitools/mask.png")
+ 
         #let's pull our pic and mask out
         if d['image'] != None:
             decodedImage = base64.decodebytes(bytes(d['image'], "utf-8"))
@@ -257,13 +262,22 @@ class LegacyApi:
             decodedImage = base64.decodebytes(bytes(d['mask_image'], "utf-8"))
             inpaintMask = Image.open(io.BytesIO(decodedImage))
         else:
-            msg = ("Error: no mask_image parm sent in request")
-            print(msg)
-            return {msg}
+            print("No mask sent, creating default full mask")
+            inpaintMask = Image.new("RGB", (inpaintPic.width, inpaintPic.height), (255, 255, 255))
 
-        #inpaintPic = Image.open("aitools/pic.png")
-        #inpaintMask = Image.open("aitools/mask.png")
 
+        generate_subject_mask = d['generate_subject_mask']
+        generate_subject_mask_reverse = d['generate_subject_mask_reverse']
+    
+        if generate_subject_mask or generate_subject_mask_reverse:
+            print("Using AI to create mask of subject...")
+            inpaintMask = DoImageSegmentationAndReturnMask(inpaintPic)
+            if generate_subject_mask_reverse:
+                inpaintMask = ImageOps.invert(inpaintMask)
+                #inpaintMask.save("mask_test.png", format="png")
+      
+
+     
         samplerName = d['sampler_name']
         
         if len(samplerName) > 0:
