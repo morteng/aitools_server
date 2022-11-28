@@ -1,0 +1,1 @@
+isnet-general-use.pth will go here for the background replace stuff, it will be automatically downloaded if needed
