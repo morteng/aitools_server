@@ -34,13 +34,14 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
 
 <a href="aitools/aitools_client_fluffy_zoomedout.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedout.jpg" width=400></a>
 
-**Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, it has completely replaced the original AI Tools backend server.
+**Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, specific missing features that I need are folded into it
 
-# Recent server changes (Nov 26th, 2022)
-* Versioned to 0.28
+# Last update Nov 28th, 2022, latest changes:
+* Versioned to 0.29
+* Synced to latest AUTOMATIC1111, now with Stable Diffusion 2.0 support!
+* Fixed windows launch crash issue
 * legacy img2img api now still works if the mask parm is missing, it just assumed the whole thing should be active
 * img2img supports two new parms: generate_subject_mask and generate_subject_mask_reverse.  This allows you to send in a picture of someone, and it uses AI (DIS) to auto-create the mask on the fly to operate on, to change only them or their background! Added usage example in aitools/api_tester_jupyter_notebook.ipynb
-
 
 ## Installation and Running (modified from [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki) docs)
 Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) are met and follow the instructions available for both [NVidia](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-NVidia-GPUs) (recommended) and [AMD](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) GPUs.
