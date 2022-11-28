@@ -29,3 +29,5 @@ lark
 inflection
 wget
 GitPython
+torchsde
+safetensors

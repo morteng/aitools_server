@@ -26,3 +26,5 @@ lark==1.1.2
 inflection==0.5.1
 wget
 GitPython==3.1.27
+torchsde==0.2.5
+safetensors==0.2.5
