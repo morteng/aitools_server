@@ -17,7 +17,7 @@ import gradio.routes
 import gradio.utils
 import numpy as np
 from PIL import Image, PngImagePlugin
-
+from modules.call_queue import wrap_gradio_gpu_call, wrap_queued_call, wrap_gradio_call
 
 from modules import sd_hijack, sd_models, localization, script_callbacks, ui_extensions, deepbooru
 from modules.paths import script_path
@@ -28,7 +28,6 @@ import modules.codeformer_model
 import modules.generation_parameters_copypaste as parameters_copypaste
 import modules.gfpgan_model
 import modules.hypernetworks.ui
-import modules.ldsr_model
 import modules.scripts
 import modules.shared as shared
 import modules.styles
@@ -158,67 +157,6 @@ def save_files(js_data, images, do_make_zip, index):
     return gr.File.update(value=fullfns, visible=True), '', '', plaintext_to_html(f"Saved: {filenames[0]}")
 
 
-def wrap_gradio_call(func, extra_outputs=None, add_stats=False):
-    def f(*args, extra_outputs_array=extra_outputs, **kwargs):
-        run_memmon = opts.memmon_poll_rate > 0 and not shared.mem_mon.disabled and add_stats
-        if run_memmon:
-            shared.mem_mon.monitor()
-        t = time.perf_counter()
-
-        try:
-            res = list(func(*args, **kwargs))
-        except Exception as e:
-            # When printing out our debug argument list, do not print out more than a MB of text
-            max_debug_str_len = 131072 # (1024*1024)/8
-
-            print("Error completing request", file=sys.stderr)
-            argStr = f"Arguments: {str(args)} {str(kwargs)}"
-            print(argStr[:max_debug_str_len], file=sys.stderr)
-            if len(argStr) > max_debug_str_len:
-                print(f"(Argument list truncated at {max_debug_str_len}/{len(argStr)} characters)", file=sys.stderr)
-
-            print(traceback.format_exc(), file=sys.stderr)
-
-            shared.state.job = ""
-            shared.state.job_count = 0
-
-            if extra_outputs_array is None:
-                extra_outputs_array = [None, '']
-
-            res = extra_outputs_array + [f"<div class='error'>{plaintext_to_html(type(e).__name__+': '+str(e))}</div>"]
-
-        shared.state.skipped = False
-        shared.state.interrupted = False
-        shared.state.job_count = 0
-
-        if not add_stats:
-            return tuple(res)
-
-        elapsed = time.perf_counter() - t
-        elapsed_m = int(elapsed // 60)
-        elapsed_s = elapsed % 60
-        elapsed_text = f"{elapsed_s:.2f}s"
-        if elapsed_m > 0:
-            elapsed_text = f"{elapsed_m}m "+elapsed_text
-
-        if run_memmon:
-            mem_stats = {k: -(v//-(1024*1024)) for k, v in shared.mem_mon.stop().items()}
-            active_peak = mem_stats['active_peak']
-            reserved_peak = mem_stats['reserved_peak']
-            sys_peak = mem_stats['system_peak']
-            sys_total = mem_stats['total']
-            sys_pct = round(sys_peak/max(sys_total, 1) * 100, 2)
-
-            vram_html = f"<p class='vram'>Torch active/reserved: {active_peak}/{reserved_peak} MiB, <wbr>Sys VRAM: {sys_peak}/{sys_total} MiB ({sys_pct}%)</p>"
-        else:
-            vram_html = ''
-
-        # last item is always HTML
-        res[-1] += f"<div class='performance'><p class='time'>Time taken: <wbr>{elapsed_text}</p>{vram_html}</div>"
-
-        return tuple(res)
-
-    return f
 
 
 def calc_time_left(progress, threshold, label, force_display):
@@ -666,7 +604,7 @@ Requested path was: {f}
                 return result_gallery, generation_info if tabname != "extras" else html_info_x, html_info
 
 
-def create_ui(wrap_gradio_gpu_call):
+def create_ui():
     import modules.img2img
     import modules.txt2img
 
@@ -826,7 +764,7 @@ def create_ui(wrap_gradio_gpu_call):
                 height,
             ]
 
-            token_button.click(fn=update_token_counter, inputs=[txt2img_prompt, steps], outputs=[token_counter])
+            token_button.click(fn=wrap_queued_call(update_token_counter), inputs=[txt2img_prompt, steps], outputs=[token_counter])
 
     modules.scripts.scripts_current = modules.scripts.scripts_img2img
     modules.scripts.scripts_img2img.initialize_scripts(is_img2img=True)
@@ -853,12 +791,26 @@ def create_ui(wrap_gradio_gpu_call):
                         init_img = gr.Image(label="Image for img2img", elem_id="img2img_image", show_label=False, source="upload", interactive=True, type="pil", tool=cmd_opts.gradio_img2img_tool).style(height=480)
 
                     with gr.TabItem('Inpaint', id='inpaint'):
-                        init_img_with_mask = gr.Image(label="Image for inpainting with mask",  show_label=False, elem_id="img2maskimg", source="upload", interactive=True, type="pil", tool="sketch", image_mode="RGBA").style(height=480)
+                        init_img_with_mask = gr.Image(label="Image for inpainting with mask", show_label=False, elem_id="img2maskimg", source="upload", interactive=True, type="pil", tool=cmd_opts.gradio_inpaint_tool, image_mode="RGBA").style(height=480)
+                        init_img_with_mask_orig = gr.State(None)
+
+                        use_color_sketch = cmd_opts.gradio_inpaint_tool == "color-sketch"
+                        if use_color_sketch:
+                            def update_orig(image, state):
+                                if image is not None:
+                                    same_size = state is not None and state.size == image.size
+                                    has_exact_match = np.any(np.all(np.array(image) == np.array(state), axis=-1))
+                                    edited = same_size and has_exact_match
+                                    return image if not edited or state is None else state
+
+                            init_img_with_mask.change(update_orig, [init_img_with_mask, init_img_with_mask_orig], init_img_with_mask_orig)
 
                         init_img_inpaint = gr.Image(label="Image for img2img", show_label=False, source="upload", interactive=True, type="pil", visible=False, elem_id="img_inpaint_base")
                         init_mask_inpaint = gr.Image(label="Mask", source="upload", interactive=True, type="pil", visible=False, elem_id="img_inpaint_mask")
 
-                        mask_blur = gr.Slider(label='Mask blur', minimum=0, maximum=64, step=1, value=4)
+                        with gr.Row():
+                            mask_blur = gr.Slider(label='Mask blur', minimum=0, maximum=64, step=1, value=4)
+                            mask_alpha = gr.Slider(label="Mask transparency", interactive=use_color_sketch, visible=use_color_sketch)
 
                         with gr.Row():
                             mask_mode = gr.Radio(label="Mask mode", show_label=False, choices=["Draw mask", "Upload mask"], type="index", value="Draw mask", elem_id="mask_mode")
@@ -945,12 +897,14 @@ def create_ui(wrap_gradio_gpu_call):
                     img2img_prompt_style2,
                     init_img,
                     init_img_with_mask,
+                    init_img_with_mask_orig,
                     init_img_inpaint,
                     init_mask_inpaint,
                     mask_mode,
                     steps,
                     sampler_index,
                     mask_blur,
+                    mask_alpha,
                     inpainting_fill,
                     restore_faces,
                     tiling,
