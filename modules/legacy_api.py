@@ -302,9 +302,10 @@ class LegacyApi:
         #if true, we do our own NSFW check and send back a custom image if nsfw.  If false, we do whatever the server default is
         forceNSFFilter = int(d['safety_filter'].lower() == "true")
         alpha_mask_subject = d['alpha_mask_subject']
-    
-        images, params, html = modules.img2img.img2img(1, d['prompt'], d['negative_prompt'], "", "", None, {}, inpaintPic, inpaintMask, 1,
-        d['steps'], d['sampler_index'], d['mask_blur'], inpainting_fill_mode,  d['restore_faces'], d['tiling'], 1, 1, d['cfg_scale'], d['denoising_strength'],
+        maskAlpha = 1 #a new parm that was just added
+        init_img_with_mask_orig = None #this is a new parm, unsure what it does right now, just fixing the build
+        images, params, html = modules.img2img.img2img(1, d['prompt'], d['negative_prompt'], "", "", None, {}, init_img_with_mask_orig, inpaintPic, inpaintMask, 1,
+        d['steps'], d['sampler_index'], d['mask_blur'], maskAlpha, inpainting_fill_mode,  d['restore_faces'], d['tiling'], 1, 1, d['cfg_scale'], d['denoising_strength'],
         d['seed'], -1, 0, -1, -1, False, d['height'], d['width'], 0, True, 0, False, "", "", 
         0, False, None, '', False, 1, '', 4, '', True)
 

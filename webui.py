@@ -32,6 +32,9 @@ from modules import modelloader
 from modules.shared import cmd_opts
 import modules.hypernetworks.hypernetwork
 
+#seth's hack to always listen, reduces confusion for my webtools which won't work on a LAN without
+#it
+cmd_opts.listen = True
 
 if cmd_opts.server_name:
     server_name = cmd_opts.server_name
@@ -128,7 +131,9 @@ def api_only():
 
 
 def webui():
-    launch_api = cmd_opts.api
+    launch_api = True #forcing API, reduces confusion as Seth's AI tools won't work at all if this isn't enabled
+    #launch_api = cmd_opts.api
+    
     initialize()
 
     if cmd_opts.api and cmd_opts.gradio_debug:
@@ -175,7 +180,6 @@ def webui():
             #later, when the new API system can do img2img etc, we can get rid of this and switch over
             print("Seth's legacy API mounted")
 
-        modules.script_callbacks.app_started_callback(shared.demo, app)
         modules.script_callbacks.app_started_callback(shared.demo, app)
 
         wait_on_server(shared.demo)
