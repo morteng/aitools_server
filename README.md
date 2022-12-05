@@ -36,9 +36,9 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, specific missing features that I need are folded into it
 
-# Last update Nov 28th, 2022, latest changes:
-* Versioned to 0.29
-* Synced to latest AUTOMATIC1111, now with Stable Diffusion 2.0 support!
+# Last update Dec 5th, 2022, latest changes:
+* Versioned to 0.30
+* Synced to latest AUTOMATIC1111
 * Fixed windows launch crash issue
 * legacy img2img api now still works if the mask parm is missing, it just assumed the whole thing should be active
 * img2img supports two new parms: generate_subject_mask and generate_subject_mask_reverse.  This allows you to send in a picture of someone, and it uses AI (DIS) to auto-create the mask on the fly to operate on, to change only them or their background! Added usage example in aitools/api_tester_jupyter_notebook.ipynb
