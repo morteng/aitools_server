@@ -1,17 +1,20 @@
-# AI Tools Server
+# AI Tools Server (made to be used with Seth's AI Tools front-end)
 
 <a href="https://www.youtube.com/watch?v=2TB4f8ojKYo"><img align="top" src="aitools/apple_youtube_thumbnail.png" width=300></a>
 
 (warning, version in the video above is outdated, but does give an idea of the workflow)
 
+Already have the AUTOMATIC1111 Stable Diffusion WebUI server installed?  My [AI Tools front-end](https://github.com/SethRobinson/aitools_client) also works directly with that now too, in which case you don't really have to use this server fork!
+
 # Features of this server
-This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project with some additional tweaks for my AI Tools to work.
+This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project with some additional tweaks for my AI Tools to work. (for example, background removal)
 
-To use my native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client), you need this running somewhere.
+Made to to use with my native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client)
 
-* My legacy api (txt2img, img2img, interrogate, background removal, on demand nsfw checks) can be used simultaneously with the normal web interface, AND the new partially done official api feature
-* Just want the legacy api and don't care about my front end? Here's a [notebook](https://github.com/SethRobinson/aitools_server/blob/master/aitools/api_tester_jupyter_notebook.ipynb) showing how to use it directly
-* Also added a notebook showing how to use the new unfinished API [here](https://github.com/SethRobinson/aitools_server/blob/master/aitools/new_api_tester_jupyter_notebook.ipynb)
+Or, don't use my front-end client and just use its API directly:
+
+* Here's a [Python Jupter notebook](https://github.com/SethRobinson/aitools_server/blob/master/aitools/automatic1111_api_tester_jupyter_notebook.ipynb) showing examples of how to use the standard AUTOMATIC1111 api
+* Here's a [Python Jupter notebook](https://github.com/SethRobinson/aitools_server/blob/master/aitools/aitools_extensions_api_tester_jupyter_notebook.ipynb) showing how to use the extended features available in my forked server (AI background removal, AI subject masking, etc)
 
 
 # Features of the AI Tools Client:
@@ -28,20 +31,19 @@ To use my native Unity-based front-end [Seth's AI Tools](https://github.com/Seth
  * Pan/zoom with thousands of images on the screen
  * Mask painting with controllable brush size
  * Can utilize multiple servers allowing seamless use of all remote GPUs for ultra fast generation
- * All open source, use the Unity game engine and C# to do stuff with AI art
  * Neat workflow that allows evolving images with loopback while live-selecting the best alteratives to shape the image in real-time
+ * All open source, uses the Unity game engine and C# to do stuff with AI art
+ * Private! Does not phone home or collect any statistics, purely local usage
  
-
 <a href="aitools/aitools_client_fluffy_zoomedout.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedout.jpg" width=400></a>
 
-**Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, specific missing features that I need are folded into it
+**Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, specific missing features that I need are folded into it. Previously I had written my own custom server but that was like, too much work man
 
-# Last update Dec 5th, 2022, latest changes:
-* Versioned to 0.30
-* Synced to latest AUTOMATIC1111
-* Fixed windows launch crash issue
-* legacy img2img api now still works if the mask parm is missing, it just assumed the whole thing should be active
-* img2img supports two new parms: generate_subject_mask and generate_subject_mask_reverse.  This allows you to send in a picture of someone, and it uses AI (DIS) to auto-create the mask on the fly to operate on, to change only them or their background! Added usage example in aitools/api_tester_jupyter_notebook.ipynb
+# Last update Dec 10th, 2022, latest changes:
+* Versioned to 0.40
+* LagacyAPI is gone!  Background removal/auto masking features folded into AUTOMATIC1111's API, should mean this forked server will be easier for me to update (also, the AI Tools client now 99% works with the vanilla AUTOMATIC1111 server which is great)
+* Misc fixes and improvements, now visually shows the status of each connected server (can click it to bring up the web ui)
+* Added a lot of examples to the jupyter notebooks to help anyone trying to understand the API, renamed them to be clearer 
 
 ## Installation and Running (modified from [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki) docs)
 Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) are met and follow the instructions available for both [NVidia](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-NVidia-GPUs) (recommended) and [AMD](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) GPUs.
@@ -91,13 +93,13 @@ Go to its directory (probably aitools_server) in a shell or command prompt and t
 git pull
 ```
 
-## Running Seth's AI Tools front end
+## Running Seth's AI Tools front-end
 
 Verify the server works by visiting it with a browser.  You should be able to generate and paint images via the default web gradio interface. Now you're ready to use the native client.
 
 **Note** The first time you use the server, it may appear that nothing is happening - look at the server window/shell, it's probably downloading a bunch of stuff for each new feature you use.  This only happens the first time!
 
-* [Download the Client (Windows, 22 MB)](https://www.rtsoft.com/files/SethsAIToolsWindows.zip) (Or get the [Unity source](https://github.com/SethRobinson/aitools_client))
+* [Download the Client (Windows, ~35 MB)](https://www.rtsoft.com/files/SethsAIToolsWindows.zip) (Or get the [Unity source](https://github.com/SethRobinson/aitools_client))
     
 * Unzip somewhere and run aitools_client.exe
 

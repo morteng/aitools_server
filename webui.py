@@ -173,12 +173,7 @@ def webui():
 
         if launch_api:
             create_api(app)
-            print("API initialized")
-
-            from modules.legacy_api import LegacyApi
-            LegacyApi(app) #also mount the older but fully featured API system (reachable by v1/ instead of sdapi/v1),
-            #later, when the new API system can do img2img etc, we can get rid of this and switch over
-            print("Seth's legacy API mounted")
+            print("API initialized with Seth's AI Tools extensions active")
 
         modules.script_callbacks.app_started_callback(shared.demo, app)
 

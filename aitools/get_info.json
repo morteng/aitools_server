@@ -1,7 +1,7 @@
 {
     "name":"stable-diffusion-webui server modified to run Seth's AI Tools",
-    "version":0.30,
-    "required_client_version":0.49,
+    "version":0.40,
+    "required_client_version":0.50,
     "gpu":[
            {
             "id":0,"abilities":"text2image,inpaint,gfpgan","vram_gb":0

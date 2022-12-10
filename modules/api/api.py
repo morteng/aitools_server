@@ -19,12 +19,16 @@ from modules.sd_models import checkpoints_list
 from modules.realesrgan_model import get_realesrgan_models
 from typing import List
 
+#Seth's stuff from the aitools dir
+from PIL import ImageOps
+from aitools.image_segmentation import DoImageSegmentationAndReturnMask
+from fastapi.responses import FileResponse
+
 def upscaler_to_index(name: str):
     try:
         return [x.name.lower() for x in shared.sd_upscalers].index(name.lower())
     except:
         raise HTTPException(status_code=400, detail=f"Invalid upscaler, needs to be on of these: {' , '.join([x.name for x in sd_upscalers])}")
-
 
 def validate_sampler_name(name):
     config = sd_samplers.all_samplers_map.get(name, None)
@@ -63,6 +67,15 @@ def encode_pil_to_base64(image):
         bytes_data = output_bytes.getvalue()
     return base64.b64encode(bytes_data)
 
+def ApplyMaskToImage(inputImage: Image, maskImage: Image):
+
+    #to actually remove the background from the image, we do this:
+    #blackImage = Image.new("RGB", inputImage.size, (0, 0, 0))
+    #inputImage = Image.composite(inputImage, blackImage, maskImage)
+   
+    #add the alpha to the image
+    inputImage.putalpha(maskImage)
+    return inputImage
 
 class Api:
     def __init__(self, app: FastAPI, queue_lock: Lock):
@@ -97,6 +110,9 @@ class Api:
         self.add_api_route("/sdapi/v1/artist-categories", self.get_artists_categories, methods=["GET"], response_model=List[str])
         self.add_api_route("/sdapi/v1/artists", self.get_artists, methods=["GET"], response_model=List[ArtistItem])
 
+        #to help Seth's from-end to understand that this is a modded 1111 server with extra features
+        self.app.add_api_route("/aitools/get_info.json", self.get_info)
+  
     def add_api_route(self, path: str, endpoint, **kwargs):
         if shared.cmd_opts.api_auth:
             return self.app.add_api_route(path, endpoint, dependencies=[Depends(self.auth)], **kwargs)
@@ -129,8 +145,14 @@ class Api:
 
         shared.state.end()
 
+        if txt2imgreq.alpha_mask_subject:
+            for i in processed.images:
+    
+                i = ApplyMaskToImage(i, DoImageSegmentationAndReturnMask(i))
+   
         b64images = list(map(encode_pil_to_base64, processed.images))
 
+    
         return TextToImageResponse(images=b64images, parameters=vars(txt2imgreq), info=processed.js())
 
     def img2imgapi(self, img2imgreq: StableDiffusionImg2ImgProcessingAPI):
@@ -142,6 +164,15 @@ class Api:
         if mask:
             mask = decode_base64_to_image(mask)
 
+
+        #Seth's AI Tools extension for auto masking the subject
+        if img2imgreq.generate_subject_mask or img2imgreq.generate_subject_mask_reverse:
+            print("Using AI to create mask of subject...")
+            mask = DoImageSegmentationAndReturnMask(decode_base64_to_image(init_images[0]))
+            if img2imgreq.generate_subject_mask_reverse: 
+                mask = ImageOps.invert(mask)
+                #p.mask.save("mask_test.png", format="png")
+        
         populate = img2imgreq.copy(update={ # Override __init__ params
             "sd_model": shared.sd_model,
             "sampler_name": validate_sampler_name(img2imgreq.sampler_name or img2imgreq.sampler_index),
@@ -157,6 +188,7 @@ class Api:
         args.pop('include_init_images', None)  # this is meant to be done by "exclude": True in model, but it's for a reason that I cannot determine.
         p = StableDiffusionProcessingImg2Img(**args)
 
+       
         imgs = []
         for img in init_images:
             img = decode_base64_to_image(img)
@@ -171,8 +203,13 @@ class Api:
 
         shared.state.end()
 
+        if img2imgreq.alpha_mask_subject:
+            for i in processed.images:
+                i = ApplyMaskToImage(i, DoImageSegmentationAndReturnMask(i))
+   
         b64images = list(map(encode_pil_to_base64, processed.images))
 
+    
         if not img2imgreq.include_init_images:
             img2imgreq.init_images = None
             img2imgreq.mask = None
@@ -183,10 +220,17 @@ class Api:
         reqDict = setUpscalers(req)
 
         reqDict['image'] = decode_base64_to_image(reqDict['image'])
-
+        
+        #Seth's custom parm, this is api (processed here) only so we'll remove it before sending it to the main call
+        alpha_mask_subject = reqDict['alpha_mask_subject']
+        del reqDict['alpha_mask_subject']
+        
         with self.queue_lock:
             result = run_extras(extras_mode=0, image_folder="", input_dir="", output_dir="", **reqDict)
 
+        if alpha_mask_subject:
+            result[0][0] = ApplyMaskToImage(result[0][0], DoImageSegmentationAndReturnMask(result[0][0]))
+        
         return ExtrasSingleImageResponse(image=encode_pil_to_base64(result[0][0]), html_info=result[1])
 
     def extras_batch_images_api(self, req: ExtrasBatchImagesRequest):
@@ -326,6 +370,11 @@ class Api:
 
     def get_artists(self):
         return [{"name":x[0], "score":x[1], "category":x[2]} for x in shared.artist_db.artists]
+
+          
+    def get_info(self):
+        #this is just for Seth's server, it allows my client app to understand when it or the server's version is outdated
+        return FileResponse("aitools/get_info.json")
 
     def launch(self, server_name, port):
         self.app.include_router(self.router)

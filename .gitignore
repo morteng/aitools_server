@@ -34,3 +34,9 @@ merge_with_automatic1111.sh
 aitools/.ipynb_checkpoints/api_tester_jupyter_notebook-checkpoint.ipynb
 /test/stdout.txt
 /test/stderr.txt
+runserver.sh
+runserver1.sh
+runserver2.sh
+runserver3.sh
+runserver4.sh
+runserver5.sh
