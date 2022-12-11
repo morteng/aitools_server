@@ -1,41 +1,13 @@
 # AI Tools Server (made to be used with Seth's AI Tools front-end)
 
-<a href="https://www.youtube.com/watch?v=2TB4f8ojKYo"><img align="top" src="aitools/apple_youtube_thumbnail.png" width=300></a>
+This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project - basically the same thing with some additional API features like background removal.
 
-(warning, version in the video above is outdated, but does give an idea of the workflow)
-
-Already have the AUTOMATIC1111 Stable Diffusion WebUI server installed?  My [AI Tools front-end](https://github.com/SethRobinson/aitools_client) also works directly with that now too, in which case you don't really have to use this server fork!
-
-# Features of this server
-This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project with some additional tweaks for my AI Tools to work. (for example, background removal)
-
-Made to to use with my native Unity-based front-end [Seth's AI Tools](https://github.com/SethRobinson/aitools_client)
+## Check [here](https://github.com/SethRobinson/aitools_client) for screenshots/movies of the AI Tools front-end in action ##
 
 Or, don't use my front-end client and just use its API directly:
 
 * Here's a [Python Jupter notebook](https://github.com/SethRobinson/aitools_server/blob/master/aitools/automatic1111_api_tester_jupyter_notebook.ipynb) showing examples of how to use the standard AUTOMATIC1111 api
 * Here's a [Python Jupter notebook](https://github.com/SethRobinson/aitools_server/blob/master/aitools/aitools_extensions_api_tester_jupyter_notebook.ipynb) showing how to use the extended features available in my forked server (AI background removal, AI subject masking, etc)
-
-
-# Features of the AI Tools Client:
-<p float="left">
-<a href="aitools/ai_tools_birdy_to_bird.jpg"><img align="top" src="aitools/ai_tools_birdy_to_bird.jpg" width=400></a>
-<a href="aitools/aitools_client_fluffy_zoomedin.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedin.jpg" width=400></a>
-</p>
-
- * It's not a web app, it's a native .exe
- * Photoshop/image editor integration with live update
- * text to image, inpainting, image interrogation, face fixing, upscaling, tiled texture generation with preview, nsfw options, alpha mask subject isolation (background removal)
- * Adjustable inpaint size tool, useful for outpainting/mixing too
- * Drag and drop images in as well as paste images from windows clipboard
- * Pan/zoom with thousands of images on the screen
- * Mask painting with controllable brush size
- * Can utilize multiple servers allowing seamless use of all remote GPUs for ultra fast generation
- * Neat workflow that allows evolving images with loopback while live-selecting the best alteratives to shape the image in real-time
- * All open source, uses the Unity game engine and C# to do stuff with AI art
- * Private! Does not phone home or collect any statistics, purely local usage
- 
-<a href="aitools/aitools_client_fluffy_zoomedout.jpg"><img align="top" src="aitools/aitools_client_fluffy_zoomedout.jpg" width=400></a>
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, specific missing features that I need are folded into it. Previously I had written my own custom server but that was like, too much work man
 
@@ -99,7 +71,7 @@ Verify the server works by visiting it with a browser.  You should be able to ge
 
 **Note** The first time you use the server, it may appear that nothing is happening - look at the server window/shell, it's probably downloading a bunch of stuff for each new feature you use.  This only happens the first time!
 
-* [Download the Client (Windows, ~35 MB)](https://www.rtsoft.com/files/SethsAIToolsWindows.zip) (Or get the [Unity source](https://github.com/SethRobinson/aitools_client))
+* [Download the Client (Windows, ~36 MB)](https://www.rtsoft.com/files/SethsAIToolsWindows.zip) (Or get the [Unity source](https://github.com/SethRobinson/aitools_client))
     
 * Unzip somewhere and run aitools_client.exe
 
@@ -125,7 +97,7 @@ Then on the client, click Configure and edit in an add_server command for both s
 - Seth's AI Tools created by Seth A. Robinson (seth@rtsoft.com) twitter: @rtsoft - [Codedojo](https://www.codedojo.com), Seth's blog
 - [Highly Accurate Dichotomous Image Segmentation](https://github.com/xuebinqin/DIS) (Xuebin Qin and Hang Dai and Xiaobin Hu and Deng-Ping Fan and Ling Shao and Luc Van Gool)
 
-## Credits for Automatic1111's WebUI
+## Credits for Automatic1111's Stable Diffusion WebUI
 - The original [stable-diffusion-webui project](https://github.com/AUTOMATIC1111/stable-diffusion-webui) the server portion is forked from
 - Stable Diffusion - https://github.com/CompVis/stable-diffusion, https://github.com/CompVis/taming-transformers
 - k-diffusion - https://github.com/crowsonkb/k-diffusion.git
