@@ -2,7 +2,7 @@
 
 This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project - basically the same thing with some additional API features like background removal.
 
-### This server is designed to be use with the [Seth's AI Tools Client](https://github.com/SethRobinson/aitools_client) <-- github page that has its download and screenshots/movies ###
+### This server is designed to be used with the [Seth's AI Tools Client](https://github.com/SethRobinson/aitools_client) <-- github page that has its download and screenshots/movies ###
 
 Or, don't use my front-end client and just use its API directly:
 
