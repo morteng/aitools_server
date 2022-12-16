@@ -1,6 +1,5 @@
 accelerate
 basicsr
-diffusers
 fairscale==0.4.4
 fonts
 font-roboto
@@ -31,3 +30,4 @@ wget
 GitPython
 torchsde
 safetensors
+psutil; sys_platform == 'darwin'
