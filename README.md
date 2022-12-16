@@ -83,7 +83,7 @@ The client should start up.  If you click "Generate", images should start being 
 
 You can run multiple instances of the server from the same install.
 
-Start one instance:
+Start one instance: (uh, this is how for linux, not sure about Windows)
 
 ```CUDA_VISIBLE_DEVICES=0 python launch.py --listen --port 7860 --api```
 
