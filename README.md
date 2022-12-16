@@ -11,7 +11,7 @@ Or, don't use my front-end client and just use its API directly:
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, specific missing features that I need are folded into it. Previously I had written my own custom server but that was like, too much work man
 
-# Last update Dec 10th, 2022, latest changes:
+# Last update Dec 16th, 2022, latest changes:
 * Versioned to 0.40
 * LagacyAPI is gone!  Background removal/auto masking features folded into AUTOMATIC1111's API, should mean this forked server will be easier for me to update (also, the AI Tools client now 99% works with the vanilla AUTOMATIC1111 server which is great)
 * Misc fixes and improvements, now visually shows the status of each connected server (can click it to bring up the web ui)
