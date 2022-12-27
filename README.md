@@ -2,6 +2,8 @@
 
 This is a forked version of the [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) project - basically the same thing with some additional API features like background removal.
 
+Warning: I think this server requires an NVidia card, that's all I've tested it with
+
 ### This server is designed to be used with the [Seth's AI Tools Client](https://github.com/SethRobinson/aitools_client) <-- github page that has its download and screenshots/movies ###
 
 Or, don't use my front-end client and just use its API directly:
@@ -63,6 +65,14 @@ Go to its directory (probably aitools_server) in a shell or command prompt and t
 
 ```bash
 git pull
+```
+
+## Merging with Automatic1111 manually ##
+
+If you feel bold, you can also merge it with the latest Automatic1111 server yourself.  This CAN break things, so you probably shouldn't do this unless you really need a new feature and Seth hasn't merged the latest yet.  (not recommended unless you know how to resolve what are probably simple merge issues)
+
+```bash
+sh merge_with_automatic1111.sh
 ```
 
 ## Running Seth's AI Tools front-end
