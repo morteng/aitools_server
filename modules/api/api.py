@@ -181,6 +181,15 @@ class Api:
             mask = DoImageSegmentationAndReturnMask(decode_base64_to_image(init_images[0]))
             if img2imgreq.generate_subject_mask_reverse: 
                 mask = ImageOps.invert(mask)
+
+            if img2imgreq.generate_subject_mask_force_no_translucency:
+                print("Removing translucency from generated mask")
+                #pixel values below 1 to 0.  This could be precalced but meh, besides, we may want threshold to be adjustable later
+                threshold = 1
+                lut = [0 if i < threshold else 255 for i in range(256)]
+
+                # Apply the lookup table to the mask image
+                mask = mask.point(lut)
                 #p.mask.save("mask_test.png", format="png")
         
         populate = img2imgreq.copy(update={ # Override __init__ params
