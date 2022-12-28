@@ -48,11 +48,13 @@ bash <(wget -qO- https://raw.githubusercontent.com/SethRobinson/aitools_server/m
 
 ## Adding a necessary file (needed for Win/linux installs)
 
-4. Place `model.ckpt` (or better, use sd-v1.5-inpainting.ckpt) in the base aitools_server directory (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
+4. Place sd-v1.5-inpainting.ckpt or another stable diffusion model in models/Stable-diffusion. (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
 5. Run the server from shell with:
 ```bash
 python launch.py --listen --port 7860 --api
 ```
+
+(if on linux, you can do sh runserver.sh, it's an included helper script that does something similar)
 
 ## Google Colab
 
