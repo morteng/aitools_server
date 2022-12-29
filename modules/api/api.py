@@ -179,9 +179,7 @@ class Api:
         if img2imgreq.generate_subject_mask or img2imgreq.generate_subject_mask_reverse:
             print("Using AI to create mask of subject...")
             mask = DoImageSegmentationAndReturnMask(decode_base64_to_image(init_images[0]))
-            if img2imgreq.generate_subject_mask_reverse: 
-                mask = ImageOps.invert(mask)
-
+    
             if img2imgreq.generate_subject_mask_force_no_translucency:
                 print("Removing translucency from generated mask")
                 #pixel values below 1 to 0.  This could be precalced but meh, besides, we may want threshold to be adjustable later
@@ -191,7 +189,10 @@ class Api:
                 # Apply the lookup table to the mask image
                 mask = mask.point(lut)
                 #p.mask.save("mask_test.png", format="png")
-        
+
+            if img2imgreq.generate_subject_mask_reverse: 
+                mask = ImageOps.invert(mask)
+
         populate = img2imgreq.copy(update={ # Override __init__ params
             "sd_model": shared.sd_model,
             "sampler_name": validate_sampler_name(img2imgreq.sampler_name or img2imgreq.sampler_index),
