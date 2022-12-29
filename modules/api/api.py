@@ -81,6 +81,14 @@ def ApplyMaskToImage(inputImage: Image, maskImage: Image):
     inputImage.putalpha(maskImage)
     return inputImage
 
+def threshold_alpha(pixel):
+        
+        if pixel > 1:
+            return 255
+        else:
+            return 0
+
+
 class Api:
     def __init__(self, app: FastAPI, queue_lock: Lock):
         if shared.cmd_opts.api_auth:
@@ -165,6 +173,7 @@ class Api:
     
         return TextToImageResponse(images=b64images, parameters=vars(txt2imgreq), info=processed.js())
 
+            
     def img2imgapi(self, img2imgreq: StableDiffusionImg2ImgProcessingAPI):
         init_images = img2imgreq.init_images
         if init_images is None:
@@ -180,18 +189,16 @@ class Api:
             print("Using AI to create mask of subject...")
             mask = DoImageSegmentationAndReturnMask(decode_base64_to_image(init_images[0]))
     
+            if img2imgreq.generate_subject_mask_reverse: 
+                mask = ImageOps.invert(mask)
+
             if img2imgreq.generate_subject_mask_force_no_translucency:
                 print("Removing translucency from generated mask")
                 #pixel values below 1 to 0.  This could be precalced but meh, besides, we may want threshold to be adjustable later
-                threshold = 1
-                lut = [0 if i < threshold else 255 for i in range(256)]
 
                 # Apply the lookup table to the mask image
-                mask = mask.point(lut)
-                #p.mask.save("mask_test.png", format="png")
-
-            if img2imgreq.generate_subject_mask_reverse: 
-                mask = ImageOps.invert(mask)
+                mask = mask.point(threshold_alpha)
+            #mask.save("mask_test.png", format="png")
 
         populate = img2imgreq.copy(update={ # Override __init__ params
             "sd_model": shared.sd_model,
