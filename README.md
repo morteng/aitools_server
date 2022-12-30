@@ -13,10 +13,11 @@ Or, don't use my front-end client and just use its API directly:
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, specific missing features that I need are folded into it. Previously I had written my own custom server but that was like, too much work man
 
-# Last update Dec 28th, 2022, recent changes:
+# Last update Dec 30th, 2022, recent changes:
 
 * LagacyAPI is gone!  Background removal/auto masking features folded into AUTOMATIC1111's API, should mean this forked server will be easier for me to update (also, the AI Tools client now 99% works with the vanilla AUTOMATIC1111 server which is great)
 * 0.41: Added img2img api parm generate_subject_mask_force_no_translucency, helps me with something new I'm playing with, I needed the auto-mask threshold so it was just on/off.  Example of use added to juptyer notebook
+* 0.42: Fixed issue with translucency/alpha
 
 ## Installation and Running (modified from [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki) docs)
 Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) are met and follow the instructions available for both [NVidia](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-NVidia-GPUs) (recommended) and [AMD](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) GPUs.

@@ -198,8 +198,7 @@ class Api:
 
                 # Apply the lookup table to the mask image
                 mask = mask.point(threshold_alpha)
-            #mask.save("mask_test.png", format="png")
-
+      
         populate = img2imgreq.copy(update={ # Override __init__ params
             "sd_model": shared.sd_model,
             "sampler_name": validate_sampler_name(img2imgreq.sampler_name or img2imgreq.sampler_index),
@@ -216,6 +215,9 @@ class Api:
         p = StableDiffusionProcessingImg2Img(**args)
 
         p.init_images = [decode_base64_to_image(x) for x in init_images]
+
+        #mask.save("mask_test.png", format="png") #for debugging, can see exactly what the mask looks like
+        #p.init_images[0].save("init_image_test.png", format="png") #for debugging
 
         shared.state.begin()
 
