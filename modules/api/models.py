@@ -114,7 +114,8 @@ StableDiffusionImg2ImgProcessingAPI = PydanticModelGenerator(
          {"key": "alpha_mask_subject", "type": bool, "default": False, "exclude" : True},
           {"key": "generate_subject_mask", "type": bool, "default": False, "exclude" : True},
             {"key": "generate_subject_mask_reverse", "type": bool, "default": False, "exclude" : True},
-              {"key": "generate_subject_mask_force_no_translucency", "type": bool, "default": False, "exclude" : True}
+              {"key": "generate_subject_mask_force_no_translucency", "type": bool, "default": False, "exclude" : True},
+                  {"key": "alpha_mask_subject_force_no_translucency", "type": bool, "default": False, "exclude" : True}
       
          ]
 ).generate_model()

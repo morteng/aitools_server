@@ -83,11 +83,66 @@ def ApplyMaskToImage(inputImage: Image, maskImage: Image):
 
 def threshold_alpha(pixel):
         
-        if pixel > 1:
+        if pixel > 40:
             return 255
         else:
             return 0
 
+def expand_alpha_mask(image, N):
+    # Create a new image with the same size as the original image
+    new_image = Image.new('L', (image.width, image.height), 0)
+
+    # Get the image data as a 2D list of pixels
+    image_data = image.load()
+
+    # Expand the alpha mask by N pixels on all sides
+    new_image_data = [[0 for _ in range(image.width)] for _ in range(image.height)]
+    for i, j in itertools.product(range(-N, N+1), repeat=2):
+        for x in range(image.width):
+            for y in range(image.height):
+                pixel = image_data[x, y]
+                if pixel != 0:
+                    new_x = x + i
+                    new_y = y + j
+                    if 0 <= new_x < image.width and 0 <= new_y < image.height:
+                        new_image_data[new_y][new_x] = pixel
+
+    # Update the new image with the expanded alpha mask
+    new_image.putdata([pixel for row in new_image_data for pixel in row])
+
+    # Return the new image
+    return new_image
+
+def expand_alpha_mask_rgba(image, N):
+    # Convert the image to RGBA if it is not already
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    # Create a new image with the same size as the original image
+    new_image = Image.new('RGBA', (image.width, image.height), (0, 0, 0, 0))
+
+    # Get the image data as a 2D list of pixels
+    image_data = list(image.getdata())
+    image_data = [image_data[i:i+image.width] for i in range(0, len(image_data), image.width)]
+
+    # Expand the alpha mask by N pixels on all sides
+    new_image_data = [[(0, 0, 0, 0) for _ in range(image.width)] for _ in range(image.height)]
+    for x in range(image.width):
+        for y in range(image.height):
+            pixel = image_data[y][x]
+            if pixel[3] != 0:
+                for i in range(-N, N+1):
+                    for j in range(-N, N+1):
+                        new_x = x + i
+                        new_y = y + j
+                        if 0 <= new_x < image.width and 0 <= new_y < image.height:
+                            new_image_data[new_y][new_x] = pixel
+
+    # Update the new image with the expanded alpha mask
+    new_image.putdata([pixel for row in new_image_data for pixel in row])
+
+    # Return the new image
+    return new_image
 
 class Api:
     def __init__(self, app: FastAPI, queue_lock: Lock):
@@ -210,13 +265,15 @@ class Api:
         if populate.sampler_name:
             populate.sampler_index = None  # prevent a warning later on
 
+        print(F"noise is {img2imgreq.denoising_strength}")
+
         args = vars(populate)
         args.pop('include_init_images', None)  # this is meant to be done by "exclude": True in model, but it's for a reason that I cannot determine.
         p = StableDiffusionProcessingImg2Img(**args)
 
         p.init_images = [decode_base64_to_image(x) for x in init_images]
-
-        #mask.save("mask_test.png", format="png") #for debugging, can see exactly what the mask looks like
+        #if mask != None:
+        #    mask.save("mask_test.png", format="png") #for debugging, can see exactly what the mask looks like
         #p.init_images[0].save("init_image_test.png", format="png") #for debugging
 
         shared.state.begin()
@@ -226,13 +283,41 @@ class Api:
 
         shared.state.end()
 
+        if (img2imgreq.denoising_strength == 0): #massive hack from Seth to work with odd image sizes without resizing, 
+            #I sometimes just want masking and am too lazy to add a "generatemask" endpoint for now
+            #also, we get away from it 'fuzzing up' the image we send back at all
+            processed.images[0] = p.init_images[0]
+            has_alpha = processed.images[0].mode == "RGBA"
+            if has_alpha:
+                processed.images[0] = processed.images[0].convert("RGB")
+
         if img2imgreq.alpha_mask_subject:
             for i in processed.images:
-                i = ApplyMaskToImage(i, DoImageSegmentationAndReturnMask(i))
+                alpham = DoImageSegmentationAndReturnMask(i)
+              
+            
+                if img2imgreq.alpha_mask_subject_force_no_translucency:
+                    print("Removing translucency from mask")
+                    #pixel values below 1 to 0.  This could be precalced but meh, besides, we may want threshold to be adjustable later
+
+                    # Apply the lookup table to the mask image
+                    alpham = alpham.point(threshold_alpha)
+
+                    #actually, let's expand the alpha mask a bit
+
+                    alpham = expand_alpha_mask(alpham, 1)
+                
+                i = ApplyMaskToImage(i, alpham)
+
+      
    
         b64images = list(map(encode_pil_to_base64, processed.images))
 
-    
+        if (img2imgreq.denoising_strength == 0): #massive hack from Seth to work with odd image sizes without resizing, I sometimes just want masking and am too lazy to add a "generatemask" endpoint for now
+            processed.images[0] = p.init_images[0]
+
+        #processed.images[0].save("img2img_finaloutput_test.png", format="png") #for debugging
+
         if not img2imgreq.include_init_images:
             img2imgreq.init_images = None
             img2imgreq.mask = None
