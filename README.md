@@ -23,14 +23,14 @@ Or, don't use my front-end client and just use its API directly:
 Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) are met and follow the instructions available for both [NVidia](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-NVidia-GPUs) (recommended) and [AMD](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) GPUs.
 
 
-### Automatic Installation on Windows
+### Installation on Windows
 1. Install [Python 3.10.6](https://www.python.org/downloads/windows/), checking "Add Python to PATH"
 2. Install [git](https://git-scm.com/download/win).
 3. Download the aitools_server repository, for example by running `git clone https://github.com/SethRobinson/aitools_server.git`.
-4. Place `model.ckpt` in the `models` directory (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get it).
+4. Place any stable diffusion checkpoint such as `sd-v1-5-inpainting.ckpt` in the `models/Stable-diffusion` directory (see [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) for where to get one)
 5. Run `webui-user.bat` from Windows Explorer as normal, non-administrator, user.
 
-### Automatic Installation on Linux
+### Installation on Linux
 1. Install the dependencies:
 Note:  Requires Python 3.9+!
 
@@ -123,6 +123,7 @@ Then on the client, click Configure and edit in an add_server command for both s
 - Ideas for optimizations - https://github.com/basujindal/stable-diffusion
 - Cross Attention layer optimization - Doggettx - https://github.com/Doggettx/stable-diffusion, original idea for prompt editing.
 - Cross Attention layer optimization - InvokeAI, lstein - https://github.com/invoke-ai/InvokeAI (originally http://github.com/lstein/stable-diffusion)
+- Sub-quadratic Cross Attention layer optimization - Alex Birch (https://github.com/Birch-san/diffusers/pull/1), Amin Rezaei (https://github.com/AminRezaei0x443/memory-efficient-attention)
 - Textual Inversion - Rinon Gal - https://github.com/rinongal/textual_inversion (we're not using his code, but we are using his ideas).
 - Idea for SD upscale - https://github.com/jquesnelle/txt2imghd
 - Noise generation for outpainting mk2 - https://github.com/parlance-zz/g-diffuser-bot
