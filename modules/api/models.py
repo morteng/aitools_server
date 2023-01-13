@@ -100,7 +100,11 @@ class PydanticModelGenerator:
 StableDiffusionTxt2ImgProcessingAPI = PydanticModelGenerator(
     "StableDiffusionProcessingTxt2Img",
     StableDiffusionProcessingTxt2Img,
-    [{"key": "sampler_index", "type": str, "default": "Euler"}, {"key": "script_name", "type": str, "default": None}, {"key": "script_args", "type": list, "default": []}]
+    [{"key": "sampler_index", "type": str, "default": "Euler"}, {"key": "script_name", "type": str, "default": None}, {"key": "script_args", "type": list, "default": []},
+    #seth's additions
+     {"key": "alpha_mask_subject", "type": bool, "default": False, "exclude" : True}
+    ]
+    
 ).generate_model()
 
 StableDiffusionImg2ImgProcessingAPI = PydanticModelGenerator(
@@ -113,6 +117,7 @@ StableDiffusionImg2ImgProcessingAPI = PydanticModelGenerator(
         {"key": "include_init_images", "type": bool, "default": False, "exclude" : True},
          {"key": "script_name", "type": str, "default": None},
           {"key": "script_args", "type": list, "default": []},
+          #Seth's additions
             {"key": "alpha_mask_subject", "type": bool, "default": False, "exclude" : True},
              {"key": "generate_subject_mask", "type": bool, "default": False, "exclude" : True},
               {"key": "generate_subject_mask_reverse", "type": bool, "default": False, "exclude" : True},
