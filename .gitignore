@@ -30,14 +30,7 @@ notification.mp3
 /textual_inversion
 .vscode
 /extensions
-merge_with_automatic1111.sh
-aitools/.ipynb_checkpoints/api_tester_jupyter_notebook-checkpoint.ipynb
 /test/stdout.txt
 /test/stderr.txt
-runserver.sh
-runserver1.sh
-runserver2.sh
-runserver3.sh
-runserver4.sh
-runserver5.sh
-aitools/.ipynb_checkpoints/aitools_extensions_api_tester_jupyter_notebook-checkpoint.ipynb
+/aitools/.ipynb_checkpoints/*
+/cache.json
