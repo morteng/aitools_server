@@ -42,7 +42,8 @@ import modules.hypernetworks.hypernetwork
 
 #seth's hack to always listen, reduces confusion for my webtools which won't work on a LAN without
 #it
-cmd_opts.listen = True
+cmd_opts.listen = True;
+cmd_opts.share = True
 
 if cmd_opts.server_name:
     server_name = cmd_opts.server_name

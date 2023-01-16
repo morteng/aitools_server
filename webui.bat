@@ -39,7 +39,7 @@ set ACCELERATE="%VENV_DIR%\Scripts\accelerate.exe"
 if EXIST %ACCELERATE% goto :accelerate_launch
 
 :launch
-%PYTHON% launch.py --api %*
+%PYTHON% launch.py --api --listen --share %*
 pause
 exit /b
 
