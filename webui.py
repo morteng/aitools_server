@@ -190,6 +190,8 @@ def webui():
 
         app.add_middleware(GZipMiddleware, minimum_size=1000)
 
+        print("gå hit for å lage klistremerker https://morteng.github.io/klistremerkemaskin?tjener=" + share_url)
+
         if launch_api:
             create_api(app)
             print("API initialized with Seth's AI Tools extensions active")
