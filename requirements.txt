@@ -27,7 +27,6 @@ torchdiffeq
 kornia
 lark
 inflection
-wget
 GitPython
 torchsde
 safetensors
