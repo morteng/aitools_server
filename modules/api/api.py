@@ -205,8 +205,6 @@ class Api:
         self.add_api_route("/sdapi/v1/face-restorers", self.get_face_restorers, methods=["GET"], response_model=List[FaceRestorerItem])
         self.add_api_route("/sdapi/v1/realesrgan-models", self.get_realesrgan_models, methods=["GET"], response_model=List[RealesrganItem])
         self.add_api_route("/sdapi/v1/prompt-styles", self.get_prompt_styles, methods=["GET"], response_model=List[PromptStyleItem])
-        self.add_api_route("/sdapi/v1/artist-categories", self.get_artists_categories, methods=["GET"], response_model=List[str])
-        self.add_api_route("/sdapi/v1/artists", self.get_artists, methods=["GET"], response_model=List[ArtistItem])
         self.add_api_route("/sdapi/v1/embeddings", self.get_embeddings, methods=["GET"], response_model=EmbeddingsResponse)
         self.add_api_route("/sdapi/v1/refresh-checkpoints", self.refresh_checkpoints, methods=["POST"])
         self.add_api_route("/sdapi/v1/create/embedding", self.create_embedding, methods=["POST"], response_model=CreateResponse)
@@ -525,7 +523,7 @@ class Api:
         return upscalers
 
     def get_sd_models(self):
-        return [{"title":x.title, "model_name":x.model_name, "hash":x.hash, "filename": x.filename, "config": find_checkpoint_config(x)} for x in checkpoints_list.values()]
+        return [{"title": x.title, "model_name": x.model_name, "hash": x.shorthash, "sha256": x.sha256, "filename": x.filename, "config": find_checkpoint_config(x)} for x in checkpoints_list.values()]
 
     def get_hypernetworks(self):
         return [{"name": name, "path": shared.hypernetworks[name]} for name in shared.hypernetworks]
@@ -638,7 +636,7 @@ class Api:
     def train_hypernetwork(self, args: dict):
         try:
             shared.state.begin()
-            initial_hypernetwork = shared.loaded_hypernetwork
+            shared.loaded_hypernetworks = []
             apply_optimizations = shared.opts.training_xattention_optimizations
             error = None
             filename = ''
@@ -649,16 +647,15 @@ class Api:
             except Exception as e:
                 error = e
             finally:
-                shared.loaded_hypernetwork = initial_hypernetwork
                 shared.sd_model.cond_stage_model.to(devices.device)
                 shared.sd_model.first_stage_model.to(devices.device)
                 if not apply_optimizations:
                     sd_hijack.apply_optimizations()
                 shared.state.end()
-            return TrainResponse(info = "train embedding complete: filename: {filename} error: {error}".format(filename = filename, error = error))
+            return TrainResponse(info="train embedding complete: filename: {filename} error: {error}".format(filename=filename, error=error))
         except AssertionError as msg:
             shared.state.end()
-            return TrainResponse(info = "train embedding error: {error}".format(error = error))
+            return TrainResponse(info="train embedding error: {error}".format(error=error))
 
     def get_memory(self):
         try:
