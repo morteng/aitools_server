@@ -13,10 +13,10 @@ Or, don't use my front-end client and just use its API directly:
 
 **Note:**  This repository was deleted and replaced with the [AUTOMATIC1111/stable-diffusion-webui](github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) fork Sept 19th 2022, specific missing features that I need are folded into it. Previously I had written my own custom server but that was like, too much work man
 
-# Last update Jan 13th, 2023, recent changes:
+# Last update Jan 23rd, 2023, recent changes:
 
 * (merged with latest auto1111 stuff)
-* 0.43: Added alpha_mask_subject_force_no_translucency parm, needed for some new alpha tricks I'm using on the ai tools client
+* 0.44: Fixed issues with latest automatic1111 and the AI Client, but requires AI Client 0.59+ now
 
 ## Installation and Running (modified from [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki) docs)
 Make sure the required [dependencies](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Dependencies) are met and follow the instructions available for both [NVidia](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-NVidia-GPUs) (recommended) and [AMD](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Install-and-Run-on-AMD-GPUs) GPUs.
