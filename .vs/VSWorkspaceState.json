@@ -1,8 +1,10 @@
 {
   "ExpandedNodes": [
     "",
+    "\\extensions-builtin\\SwinIR\\scripts",
+    "\\scripts",
     "\\test"
   ],
-  "SelectedNode": "\\CODEOWNERS",
+  "SelectedNode": "\\webui.py",
   "PreviewInSolutionExplorer": false
 }
