@@ -17,4 +17,4 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.AIKLISTREMERKEMASKIN }}
-        run: git push https://MORTEN:$HF_TOKEN@huggingface.co/spaces/Morten/AIStickerMachine master
+        run: git push https://Morten:!JaHZbV2Jz3wyxZ@huggingface.co/spaces/Morten/AIStickerMachine master
