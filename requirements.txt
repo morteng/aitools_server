@@ -30,3 +30,8 @@ GitPython
 torchsde
 safetensors
 psutil
+fastapi==0.90.1
+wget
+torch
+tensorflow
+--extra-index-url https://download.pytorch.org/whl/cu113
